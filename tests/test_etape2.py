@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from tei_reader.core.service import inspect_file, render
+from tei_reader.core.document import _is_local_media_reference
 from tei_reader.profiles.loader import list_profiles
 
 SAMPLES = Path(__file__).resolve().parent.parent / "samples"
@@ -136,6 +137,31 @@ def test_no_remote_media_ever(tmp_path):
     assert "[image : DATA:image/png;base64,AAAA]" in html
     assert "[image : urn:example:image]" in html
     assert not any(d.code == "missing-media" for d in result.diagnostics)
+
+
+@pytest.mark.parametrize("value", [
+    "images/vignette.svg",
+    "./images/vignette.svg",
+])
+def test_local_media_reference_accepts_relative_paths(value):
+    assert _is_local_media_reference(value)
+
+
+@pytest.mark.parametrize("value", [
+    "https://example.org/a.png",
+    "file:///C:/tmp/a.png",
+    r"C:\tmp\a.png",
+    "C:/tmp/a.png",
+    "/tmp/a.png",
+    r"\\server\share\a.png",
+    "//example.org/image.png",
+    "../secret.png",
+    "images/../secret.png",
+    "data:image/png;base64,AAAA",
+    "urn:example:image",
+])
+def test_local_media_reference_rejects_non_relative_paths(value):
+    assert not _is_local_media_reference(value)
 
 
 # ------------------------- Stress mixte -------------------------

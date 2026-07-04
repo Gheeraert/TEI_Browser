@@ -184,13 +184,17 @@ fallback lisible à ce stade.
 | `graphic` (introuvable ou distant) | `<span class="tei-graphic" data-tei-url>[image : url]</span>` | marqueur textuel |
 
 **Décision (étape 2)** : la XSLT ne sait pas tester l'existence d'un
-fichier ; c'est Python (`core/document.py`) qui vérifie les chemins
-locaux de `graphic/@url` et `pb/@facs` et transmet à la XSLT les
-paramètres `existing-media` (valeurs trouvées sur disque) et
-`media-base` (dossier du fichier source en URI `file:`, car le HTML est
-écrit dans un autre dossier et les chemins du TEI sont relatifs à la
-source). Un fichier introuvable produit le diagnostic `missing-media` ;
-les références `#id`, les URL distantes (`://`) et les `data:` sont
+fichier ; c'est Python (`core/document.py`) qui vérifie uniquement les
+chemins relatifs locaux de `graphic/@url` et `pb/@facs`, sans schéma,
+relatifs au dossier du fichier TEI source. Les chemins absolus POSIX,
+Windows, UNC et les chemins contenant `..` sont rejetés : un média ne
+peut être résolu que dans le dossier du TEI ou dans ses sous-dossiers.
+Python transmet ensuite à la XSLT les paramètres `existing-media`
+(valeurs trouvées sur disque) et `media-base` (dossier du fichier source
+en URI `file:`, car le HTML est écrit dans un autre dossier et les chemins
+du TEI sont relatifs à la source). Un fichier introuvable produit le
+diagnostic `missing-media` ; les références `#id`, les URL distantes, les
+URI `file:`, `data:`, `urn:` et les URL protocol-relative (`//…`) sont
 ignorées — **aucune ressource distante n'est jamais chargée**.
 
 ## Fallback (éléments non prévus)

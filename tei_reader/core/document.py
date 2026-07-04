@@ -245,12 +245,20 @@ def _check_local_media(
 def _is_local_media_reference(value: str) -> bool:
     """True pour les chemins de fichiers locaux relatifs au TEI source.
 
-    Les URI distantes, protocol-relative (`//host/...`), `data:`, `urn:`,
-    etc. ne doivent ni déclencher d'accès disque/réseau ni produire de faux
-    diagnostics `missing-media`.
+    Seuls les chemins relatifs simples sont acceptés. Les URI avec schéma,
+    les URL protocol-relative, les chemins absolus POSIX/Windows/UNC et les
+    remontées de dossier (`..`) ne doivent ni déclencher d'accès disque/réseau
+    ni produire de faux diagnostics `missing-media`.
     """
-    if not value or value.startswith("#") or value.startswith("//"):
+    if not value or value != value.strip() or value.startswith("#"):
         return False
     if re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", value):
+        return False
+    if value.startswith(("/", "\\", "//", "\\\\")):
+        return False
+    if re.match(r"^[A-Za-z]:[\\/]", value):
+        return False
+    parts = re.split(r"[\\/]+", value)
+    if ".." in parts:
         return False
     return True
