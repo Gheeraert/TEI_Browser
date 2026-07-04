@@ -87,6 +87,16 @@ def _inspect(path: Path) -> int:
              if s["unhandled_elements"] else ""))
     for name, count in s["counts"].items():
         print(f"  {name} : {count}")
+    broken = next((d for d in result.diagnostics
+                   if d.code == "broken-local-ref"), None)
+    missing = next((d for d in result.diagnostics
+                    if d.code == "missing-media"), None)
+    print("Références locales cassées : "
+          + str(len(broken.details["refs"]) if broken else 0))
+    print("Médias locaux manquants : "
+          + str(len(missing.details["media"]) if missing else 0))
+    print(f"Profil suggéré : {s['suggested_profile']} "
+          f"({s['suggestion_reason']})")
     return 0
 
 

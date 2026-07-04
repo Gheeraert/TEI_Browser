@@ -43,6 +43,8 @@ sous Windows 11) ; `dev` installe pytest.
 .\.venv\Scripts\tei-reader render samples\verse.xml --profile verse
 .\.venv\Scripts\tei-reader render samples\drama.xml --profile drama
 .\.venv\Scripts\tei-reader render samples\apparatus.xml --profile diagnostic
+.\.venv\Scripts\tei-reader render samples\correspondence.xml --profile correspondence
+.\.venv\Scripts\tei-reader render samples\images.xml --profile prose
 
 # Transformer et ouvrir dans le navigateur par défaut
 .\.venv\Scripts\tei-reader render samples\prose.xml --open
@@ -66,7 +68,7 @@ Chaque rendu produit dans le dossier de sortie :
 
 ## Profils
 
-Quatre profils, définis dans `tei_reader/resources/profiles/` :
+Cinq profils, définis dans `tei_reader/resources/profiles/` :
 
 - **prose** — lecture courante (roman, essai, correspondance) : notes en
   fin de document, apparat réduit à la leçon retenue ;
@@ -74,6 +76,8 @@ Quatre profils, définis dans `tei_reader/resources/profiles/` :
   partagés (`@part`) en retrait ;
 - **drama** — théâtre : actes/scènes centrés, locuteurs en petites
   capitales, didascalies distinctes, distribution encadrée ;
+- **correspondence** — lettres : date et lieu à droite, salutation
+  détachée, signature, adresse encadrée ;
 - **diagnostic** — éléments non traités surlignés avec leur nom TEI,
   apparat complet (leçons, variantes, témoins), notes inline.
 
@@ -97,10 +101,11 @@ tei_reader/
 ├── ui/webview_app.py       # fenêtre pywebview minimale
 └── resources/
     ├── xsl/tei-common.xsl  # transformation TEI → HTML5 (contrat HTML)
-    ├── css/                # base.css, diagnostic.css
-    └── profiles/           # prose.json, diagnostic.json
-samples/                    # corpus de test (prose, élément inconnu, mal formé)
-tests/                      # pytest
+    ├── css/                # base, verse, drama, correspondence, apparatus, diagnostic
+    └── profiles/           # prose, verse, drama, correspondence, diagnostic (JSON)
+samples/                    # échantillons ciblés (un par fonctionnalité + stress-mixed)
+fixtures/                   # TEI réels (Corneille, Balzac, sonnet, manuscrit, grec)
+tests/                      # pytest (dont snapshots/ : HTML de non-régression)
 docs/                       # architecture, contrat HTML
 ```
 
@@ -113,7 +118,17 @@ docs/                       # architecture, contrat HTML
 Les tests garantissent au minimum : un TEI simple produit du HTML conforme au
 contrat ; un élément inconnu ne fait pas planter la transformation ; les
 diagnostics sont produits ; un XML mal formé échoue proprement (pas d'exception,
-un `RenderResult` d'erreur).
+un `RenderResult` d'erreur) ; le fichier de stress (tous genres mêlés,
+références cassées, image absente) se rend sans crash sous les cinq profils.
+
+**Snapshots de non-régression** : le HTML produit est comparé à des
+snapshots normalisés (`tests/snapshots/`). Si un test de snapshot échoue
+après un changement *voulu* du rendu, régénérer volontairement puis
+relire le diff git :
+
+```powershell
+.\.venv\Scripts\python tests\update_snapshots.py
+```
 
 ## Lancer depuis PyCharm
 
@@ -123,25 +138,28 @@ un `RenderResult` d'erreur).
    `render samples\prose.xml --open` (ou `view samples\prose.xml`).
 3. Les tests se lancent par clic droit sur `tests/` → Run pytest.
 
-## État de l'étape 1
+## État de l'étape 2
 
-**Ce qui marche** : prose, poésie (strophes, vers numérotés, vers partagés,
-métrique conservée), théâtre (actes, scènes, locuteurs, didascalies,
-distribution), notes en deux modes (inline / fin de document), apparat
-critique minimal sans perte de texte, témoins, fallback lisible pour tout
-élément inconnu, diagnostics enrichis (résumé chiffré, références locales
-cassées, images manquantes), commande `inspect`, synchronisation
-XSLT/Python vérifiée par test.
+**Ce qui est stable** : le contrat HTML et sa synchronisation XSLT/Python
+testée ; prose, poésie, théâtre, notes (2 modes), apparat minimal sans
+perte de texte ; correspondance (opener, closer, dateline, salute, signed,
+address) ; images locales réellement affichées (`graphic` → `<img>`,
+`pb/@facs` → lien, jamais de ressource distante) ; diagnostics (résumé,
+références cassées, médias manquants) ; `inspect` avec suggestion de
+profil par règles documentées ; snapshots HTML de non-régression ;
+fichier de stress rendu sans crash sous les cinq profils.
 
-**Volontairement minimal** : apparat linéaire (pas d'interface critique) ;
-fac-similés en simple marqueur ; notes marginales rendues comme les autres
-(l'attribut `place` est conservé pour plus tard) ; correspondance
-(opener/closer/dateline) pas encore traitée — fallback lisible en attendant.
+**Ce qui reste expérimental** : la mise en page de la correspondance
+(`postscript`, `date` en fallback) ; les images en URI `file:` absolue
+(HTML non déplaçable sans ses sources) ; l'heuristique de profil (seuils
+arbitraires) ; l'apparat linéaire ; les TEI réels de `fixtures/`, dont
+les éléments de transcription (`add`, `del`, `subst`…) passent en
+fallback lisible.
 
-**Reste à faire** : module correspondance ; affichage des images locales ;
-notes marginales flottantes ; cascade de réglages (corpus/fichier) ;
-rechargement à chaud dans l'UI ; snapshots de non-régression ; test de
-performance sur un gros fichier.
+**Reste à faire** : notes marginales flottantes ; éléments de
+transcription courants ; mode « copie des médias » ; cascade de réglages
+(corpus/fichier) ; rechargement à chaud dans l'UI ; test de performance
+sur un gros fichier.
 
 **Portable vers Firefox** : le contrat HTML (classes `tei-*`, `data-tei-*`,
 distinction natif/fallback), les profils JSON, toutes les CSS, le corpus

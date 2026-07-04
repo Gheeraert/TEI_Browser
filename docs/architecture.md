@@ -104,6 +104,43 @@ personnalisation, du plus courant au plus rare :
 Les niveaux 1 et 2 ne demandent jamais de toucher au XSLT, et sont
 directement portables vers un futur lecteur navigateur.
 
+### Médias locaux : l'existence est vérifiée par Python, pas par la XSLT
+
+Une XSLT ne sait pas tester l'existence d'un fichier. Pour afficher les
+images locales (étape 2), `core/document.py` vérifie sur disque les
+chemins de `graphic/@url` et `pb/@facs` (relatifs au fichier source) et
+`core/service.py` transmet à la XSLT deux paramètres calculés :
+`existing-media` (les valeurs trouvées, séparées par des sauts de ligne)
+et `media-base` (le dossier source en URI `file:`, car le HTML est écrit
+ailleurs). La XSLT rend alors une vraie `<img>` (ou un lien pour `pb`),
+sinon le marqueur textuel. Les références `#id`, URL distantes et `data:`
+sont ignorées : **aucune ressource distante n'est jamais chargée**.
+
+### Snapshots HTML normalisés
+
+`tests/test_snapshots.py` compare le HTML produit pour chaque couple
+(échantillon, profil) à un snapshot stocké dans `tests/snapshots/`.
+La normalisation (`tests/snapshot_common.py`) est volontairement légère :
+elle neutralise seulement les chemins `file:` absolus et les identifiants
+générés des notes, puis compare ligne à ligne. Régénération **volontaire**
+uniquement :
+
+```powershell
+.\.venv\Scripts\python tests\update_snapshots.py
+```
+
+puis relecture du diff git des snapshots avant commit.
+
+### Suggestion de profil : heuristique par règles, pas de ML
+
+`inspect` propose un profil par des règles simples et documentées
+(`core/document.py :: _suggest_profile`), dans cet ordre :
+`sp`/`speaker` → drama ; `lg` ou ≥ 10 `l` → verse ; `opener`/`closer` →
+correspondence ; sinon prose. Le théâtre passe en premier car une pièce
+en vers contient aussi des `lg`/`l`. La suggestion est indicative
+(`suggested_profile` + `suggestion_reason` dans le résumé), jamais
+appliquée automatiquement.
+
 ### Sécurité
 
 - lxml : `resolve_entities=False`, `no_network=True`, `load_dtd=False` —
@@ -151,14 +188,71 @@ le texte des variantes n'est jamais perdu (visibilité par CSS) ; un
 numérotation des vers est purement CSS ; les notes finales conservent
 tous leurs attributs pour permettre les modes futurs.
 
+## État de l'étape 2
+
+L'étape 2 est une passe de robustesse : correspondance (`opener`,
+`closer`, `dateline`, `salute`, `signed`, `address`, `addrLine` +
+profil `correspondence`), affichage réel des images locales
+(`graphic` → `<img>`, `pb/@facs` → lien), snapshots HTML de
+non-régression, fichier de stress mêlant tous les genres, `inspect`
+enrichi (références cassées, médias manquants, suggestion de profil),
+et un corpus de TEI réels dans `fixtures/` (Corneille, Balzac, sonnet,
+manuscrit Whitman, texte grec) utilisé par les tests de l'heuristique.
+
+### Ce qui est stable
+
+- le contrat HTML (classes `tei-*`, `data-tei-*`, fallback `data-tei`)
+  et sa synchronisation XSLT ↔ Python testée ;
+- la façade `render()`/`inspect_file()` et le format `RenderResult` ;
+- le format des profils JSON et le mécanisme CSS ;
+- les diagnostics (codes et résumé chiffré) ;
+- la chaîne de sécurité (lxml durci, CSP sans script, aucun réseau) ;
+- les snapshots et leur procédure de régénération volontaire.
+
+### Ce qui reste expérimental
+
+- le rendu de la correspondance (mise en page minimale ; `postscript`,
+  `date`, `placeName` encore en fallback) ;
+- les images locales : `src` en URI `file:` absolue vers le dossier
+  source — le HTML n'est donc pas déplaçable sans ses sources (un mode
+  « copie des médias » reste à décider) ;
+- l'heuristique de suggestion de profil (règles volontairement
+  grossières, seuil de 10 vers arbitraire) ;
+- l'apparat critique (rendu linéaire, pas d'interface) ;
+- le rendu des TEI réels de `fixtures/` : beaucoup d'éléments de
+  transcription génétique (`add`, `del`, `subst`…) passent en fallback.
+
+## Comment ajouter un profil
+
+1. Créer `tei_reader/resources/profiles/<nom>.json` :
+
+```json
+{
+  "name": "mon-profil",
+  "description": "Une ligne visible dans tei-reader profiles.",
+  "xslt": "tei-common.xsl",
+  "params": { "show-pb": "true", "note-mode": "end" },
+  "css": ["base.css", "mon-profil.css"]
+}
+```
+
+2. Créer les CSS citées dans `tei_reader/resources/css/` (ne cibler que
+   les classes et attributs du contrat HTML) ;
+3. `tei-reader profiles` doit lister le profil ;
+   `tests/test_etape1.py::test_all_profiles_are_valid` vérifie
+   automatiquement l'existence des XSLT et CSS de tous les profils ;
+4. Une XSLT dédiée n'est justifiée que si la *structure* HTML change ;
+   elle importera alors `tei-common.xsl` (champ `xslt` du profil).
+
 ## Étapes suivantes envisagées
 
-- module correspondance (`opener`, `closer`, `dateline`, `salute`) ;
-- affichage réel des images locales (fac-similés) ;
 - notes marginales flottantes (mode `margin`) ;
+- éléments de transcription courants des TEI réels (`add`, `del`,
+  `choice`, `unclear`…) ;
+- mode « copie des médias » à côté du HTML (sorties déplaçables) ;
 - cascade de réglages (défauts globaux → profil → corpus → fichier) ;
 - vraie interface d'apparat critique ;
 - rechargement à chaud des profils dans l'UI ;
 - isolation sous-processus du moteur si nécessaire ;
-- tests de non-régression par snapshots HTML normalisés et test de
-  performance sur un gros fichier.
+- test de performance sur un gros fichier (le Balzac de `fixtures/`
+  est un bon candidat).

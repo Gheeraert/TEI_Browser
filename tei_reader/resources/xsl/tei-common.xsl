@@ -18,6 +18,16 @@
   <xsl:param name="note-mode" select="'inline'"/> <!-- 'inline' | 'end' -->
   <xsl:param name="doc-title-fallback" select="'Document TEI'"/>
 
+  <!-- Médias locaux vérifiés côté Python (core/document.py) : la XSLT ne
+       sait pas tester l'existence d'un fichier. existing-media = valeurs
+       de graphic/@url et pb/@facs trouvées sur disque, séparées par des
+       sauts de ligne ; media-base = dossier du fichier source (URI file:),
+       car le HTML est écrit dans un autre dossier. Vide = aucun média. -->
+  <xsl:param name="existing-media" select="''"/>
+  <xsl:param name="media-base" select="''"/>
+  <xsl:variable name="existing-media-set"
+      select="tokenize($existing-media, '&#10;')[. != '']"/>
+
   <!-- ======================= Document ======================= -->
 
   <xsl:template match="/">
@@ -202,11 +212,25 @@
     <br class="tei-lb"/>
   </xsl:template>
 
+  <!-- Saut de page : span vide (marqueur en CSS). Si @facs désigne un
+       fichier local existant, le marqueur devient un lien <a> vers le
+       fac-similé — même classe tei-pb, les CSS restent valables. -->
   <xsl:template match="tei:pb">
     <xsl:if test="$show-pb = 'true'">
-      <span>
-        <xsl:call-template name="tei-atts"/>
-      </span>
+      <xsl:choose>
+        <xsl:when test="@facs = $existing-media-set">
+          <a href="{$media-base}/{@facs}">
+            <xsl:call-template name="tei-atts">
+              <xsl:with-param name="classes" select="'tei-pb-facs'"/>
+            </xsl:call-template>
+          </a>
+        </xsl:when>
+        <xsl:otherwise>
+          <span>
+            <xsl:call-template name="tei-atts"/>
+          </span>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
 
@@ -274,6 +298,26 @@
     </span>
   </xsl:template>
 
+  <!-- =================== Correspondance ======================= -->
+  <!-- Rendu minimal d'une lettre : en-tête (opener), formule finale
+       (closer), date/lieu (dateline), salutation (salute), signature
+       (signed), adresse (address/addrLine). La mise en page (alignements,
+       italiques) est entièrement en CSS (correspondence.css). -->
+
+  <xsl:template match="tei:opener | tei:closer | tei:address">
+    <div>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="tei:dateline | tei:salute | tei:signed | tei:addrLine">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
   <!-- ============ Apparat critique : rendu minimal ============ -->
   <!-- Décision éditoriale (documentée dans le contrat HTML) :
        - le texte des variantes n'est JAMAIS perdu : lem et rdg sont
@@ -324,14 +368,25 @@
     </div>
   </xsl:template>
 
-  <!-- ========== Fac-similés : simple marqueur (étape 1) ======= -->
+  <!-- ============= Fac-similés : images locales ================ -->
+  <!-- @url existant sur disque -> vraie <img> (src absolu file: vers le
+       dossier source) ; sinon marqueur textuel + diagnostic missing-media
+       côté Python. Aucune ressource distante n'est jamais chargée. -->
 
   <xsl:template match="tei:graphic">
     <span>
       <xsl:call-template name="tei-atts"/>
-      <xsl:text>[image : </xsl:text>
-      <xsl:value-of select="@url"/>
-      <xsl:text>]</xsl:text>
+      <xsl:choose>
+        <xsl:when test="@url = $existing-media-set">
+          <img class="tei-graphic-img" src="{$media-base}/{@url}"
+               alt="{@url}"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>[image : </xsl:text>
+          <xsl:value-of select="@url"/>
+          <xsl:text>]</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
     </span>
   </xsl:template>
 

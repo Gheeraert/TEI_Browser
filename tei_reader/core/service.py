@@ -53,6 +53,14 @@ def render(
     # 2. Transformation
     params = dict(prof.params)
     params["css-hrefs"] = " ".join(c.name for c in prof.css)
+    # Médias locaux vérifiés sur disque (jamais de ressource distante) :
+    # la XSLT ne sait pas tester l'existence d'un fichier, Python la lui
+    # fournit. media-base = dossier du fichier source en URI file:, car le
+    # HTML est écrit ailleurs (out_dir) et les chemins du TEI sont relatifs
+    # à la source.
+    if analysis.local_media:
+        params["existing-media"] = "\n".join(analysis.local_media)
+        params["media-base"] = input_path.resolve().parent.as_uri()
     try:
         html = engine.transform(input_path, prof.xslt, params)
     except TransformError as exc:

@@ -57,7 +57,7 @@ Liste des éléments traités, côté Python : `HANDLED_ELEMENTS` dans
 | `foreign` | `<span class="tei-foreign" lang="…">` | |
 | `quote`, `q` | `<span class="tei-quote/q">` | guillemets ajoutés en CSS |
 | `lb` | `<br class="tei-lb">` | |
-| `pb` | `<span class="tei-pb" data-tei-n data-tei-facs>` | vide ; marqueur « — p. n — » en CSS ; masquable par le paramètre `show-pb` |
+| `pb` | `<span class="tei-pb" data-tei-n data-tei-facs>` — ou `<a class="tei-pb tei-pb-facs" href="…">` si `@facs` désigne un fichier local existant | vide ; marqueur « — p. n — » en CSS ; masquable par le paramètre `show-pb` ; le lien pointe vers le fac-similé local (URI `file:`) |
 
 ### Notes (paramètre `note-mode`)
 
@@ -135,14 +135,39 @@ Actes et scènes sont des `tei:div` ordinaires : c'est `data-tei-type`
 3. Les sigles de témoins (`@wit`) sont affichés en mode diagnostic via
    CSS (`attr(data-tei-wit)`), jamais insérés dans le texte.
 
-### Fac-similés
+### Correspondance
 
 | TEI | HTML | Notes |
 |---|---|---|
-| `graphic` | `<span class="tei-graphic" data-tei-url>[image : url]</span>` | marqueur seulement (décision étape 1) |
+| `opener` | `<div class="tei-opener">` | en-tête de lettre |
+| `closer` | `<div class="tei-closer">` | formule finale |
+| `dateline` | `<span class="tei-dateline">` | bloc aligné à droite en CSS |
+| `salute` | `<span class="tei-salute">` | bloc en CSS |
+| `signed` | `<span class="tei-signed">` | bloc aligné à droite en CSS |
+| `address` | `<div class="tei-address">` | suscription |
+| `addrLine` | `<span class="tei-addrLine">` | une ligne par `addrLine` (CSS) |
 
-Les chemins locaux de `graphic/@url` et `pb/@facs` sont vérifiés côté
-Python : un fichier introuvable produit le diagnostic `missing-media`.
+Toute la mise en page (alignements, italiques, encadré de l'adresse)
+est dans `correspondence.css` ; le HTML ne porte que la structure.
+`postscript` et les éléments fins (`date`, `placeName`…) restent en
+fallback lisible à ce stade.
+
+### Fac-similés et images locales
+
+| TEI | HTML | Notes |
+|---|---|---|
+| `graphic` (fichier local existant) | `<span class="tei-graphic" data-tei-url><img class="tei-graphic-img" src="file:…" alt="url"></span>` | image réellement affichée |
+| `graphic` (introuvable ou distant) | `<span class="tei-graphic" data-tei-url>[image : url]</span>` | marqueur textuel |
+
+**Décision (étape 2)** : la XSLT ne sait pas tester l'existence d'un
+fichier ; c'est Python (`core/document.py`) qui vérifie les chemins
+locaux de `graphic/@url` et `pb/@facs` et transmet à la XSLT les
+paramètres `existing-media` (valeurs trouvées sur disque) et
+`media-base` (dossier du fichier source en URI `file:`, car le HTML est
+écrit dans un autre dossier et les chemins du TEI sont relatifs à la
+source). Un fichier introuvable produit le diagnostic `missing-media` ;
+les références `#id`, les URL distantes (`://`) et les `data:` sont
+ignorées — **aucune ressource distante n'est jamais chargée**.
 
 ## Fallback (éléments non prévus)
 
@@ -170,12 +195,37 @@ En mode lecture, `tei-unhandled` est visuellement neutre ; le profil
 | `show-pb` | `true` / `false` | `true` | émission ou non des marqueurs de saut de page |
 | `note-mode` | `inline` / `end` | `inline` | notes sur place ou regroupées en fin de document |
 | `doc-title-fallback` | texte | `Document TEI` | titre si le teiHeader n'en fournit pas |
+| `existing-media` | valeurs séparées par des sauts de ligne | vide | médias locaux trouvés sur disque (renseigné automatiquement par Python, jamais par les profils) |
+| `media-base` | URI `file:` | vide | dossier du fichier source (renseigné automatiquement par Python) |
+
+## Comment ajouter un nouvel élément TEI au contrat
+
+Cinq gestes, dans cet ordre — les tests refusent tout écart :
+
+1. **Documenter ici** la correspondance TEI → HTML (tableau de la bonne
+   section), avant d'implémenter : ce fichier décrit ce qui est
+   réellement rendu.
+2. **Ajouter le template** dans `tei_reader/resources/xsl/tei-common.xsl`
+   en appelant `tei-atts` (classe `tei-<nom>`, `id`, `lang`,
+   `data-tei-*` : tout est automatique).
+3. **Ajouter le nom** à `HANDLED_ELEMENTS` dans
+   `tei_reader/core/document.py` — sinon `tests/test_contract_sync.py`
+   échoue (synchronisation XSLT ↔ Python vérifiée automatiquement).
+4. **Styler en CSS** (base.css ou CSS de genre) en ne ciblant que les
+   classes `tei-*` et attributs `data-tei-*` du contrat.
+5. **Tester puis régénérer les snapshots** :
+   `python -m pytest`, puis si le HTML produit change volontairement,
+   `python tests\update_snapshots.py` et relecture du diff git.
+
+Si l'élément est reconnu mais rendu a minima, l'ajouter aussi à
+`RECOGNIZED_MINIMAL` (diagnostic `minimal-rendering`) ; s'il est
+détecté mais hors rendu, à `SIGNALED_ONLY` et à la liste des éléments
+supprimés de la XSLT.
 
 ## Évolutions prévues du contrat
 
-Classes **réservées** pour les étapes ultérieures : `tei-opener`,
-`tei-closer`, `tei-dateline`, `tei-salute`, `tei-signed`
-(correspondance) ; `tei-figure`, `tei-surface` (fac-similés avancés).
+Classes **réservées** pour les étapes ultérieures : `tei-figure`,
+`tei-surface` (fac-similés avancés).
 Toute évolution du rendu de `app`/`rdg` et de `graphic` devra rester
 compatible avec les attributs `data-tei-*` déjà émis. Le mode de notes
 `margin` (marginales flottantes) viendra s'ajouter à `inline`/`end`

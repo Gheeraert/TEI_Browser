@@ -95,8 +95,19 @@ span.tei-note::after { content: "] "; }
 .tei-listWit { margin: 1em 0; font-size: 0.9em; }
 .tei-witness { margin: 0.2em 0 0.2em 1.5em; }
 
-/* Fac-similés : simple marqueur */
+/* Fac-similés : marqueur textuel si l'image est introuvable,
+   vraie image sinon */
 .tei-graphic { color: #777; font-size: 0.85em; }
+.tei-graphic-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.6em auto;
+  border: 1px solid #ddd;
+}
+/* Saut de page cliquable (fac-similé local trouvé) */
+a.tei-pb { text-decoration: none; }
+a.tei-pb:hover { color: #7a1f1f; }
 
 /* Fallback : neutre en mode lecture, le texte reste lisible */
 .tei-unhandled { }

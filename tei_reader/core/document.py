@@ -33,6 +33,8 @@ HANDLED_ELEMENTS = frozenset({
     "lg", "l",
     # théâtre
     "sp", "speaker", "stage", "castList", "castItem", "role", "roleDesc",
+    # correspondance
+    "opener", "closer", "dateline", "salute", "signed", "address", "addrLine",
     # apparat critique et témoins
     "app", "lem", "rdg", "listWit", "witness",
     # fac-similés
@@ -64,6 +66,7 @@ class Analysis:
     summary: dict
     broken_refs: list[str] = field(default_factory=list)
     missing_media: list[str] = field(default_factory=list)
+    local_media: list[str] = field(default_factory=list)
 
 
 def safe_parse(path: Path) -> etree._ElementTree:
@@ -128,13 +131,16 @@ def analyze(tree: etree._ElementTree, source_path: Path) -> Analysis:
             unknown[name] += 1
 
     broken_refs = _check_local_refs(elements, ids)
-    missing_media = _check_local_media(elements, source_path)
+    local_media, missing_media = _check_local_media(elements, source_path)
 
+    suggested, reason = _suggest_profile(all_tei)
     summary = {
         "distinct_tei_elements": len(all_tei),
         "unhandled_elements": sorted(unknown),
         "unhandled_occurrences": sum(unknown.values()),
         "counts": {name: all_tei.get(name, 0) for name in SUMMARY_COUNTED},
+        "suggested_profile": suggested,
+        "suggestion_reason": reason,
     }
 
     return Analysis(
@@ -147,7 +153,34 @@ def analyze(tree: etree._ElementTree, source_path: Path) -> Analysis:
         summary=summary,
         broken_refs=broken_refs,
         missing_media=missing_media,
+        local_media=local_media,
     )
+
+
+# Seuil de la règle « beaucoup de vers » de l'heuristique de profil.
+MANY_VERSE_LINES = 10
+
+
+def _suggest_profile(counts: Counter) -> tuple[str, str]:
+    """Suggestion de profil par règles simples et documentées (pas de ML).
+
+    Ordre des règles (le théâtre d'abord : une pièce en vers contient
+    aussi des lg/l) :
+    1. sp ou speaker présents -> drama ;
+    2. lg présent, ou au moins MANY_VERSE_LINES éléments l -> verse ;
+    3. opener ou closer présents -> correspondence ;
+    4. sinon -> prose.
+    """
+    if counts["sp"] or counts["speaker"]:
+        return "drama", "présence de <sp>/<speaker>"
+    if counts["lg"] or counts["l"] >= MANY_VERSE_LINES:
+        return "verse", (
+            "présence de <lg>" if counts["lg"]
+            else f"au moins {MANY_VERSE_LINES} <l>"
+        )
+    if counts["opener"] or counts["closer"]:
+        return "correspondence", "présence de <opener>/<closer>"
+    return "prose", "aucun marqueur de genre détecté"
 
 
 def _check_local_refs(elements: list, ids: set[str]) -> list[str]:
@@ -171,8 +204,17 @@ def _check_local_refs(elements: list, ids: set[str]) -> list[str]:
     return broken
 
 
-def _check_local_media(elements: list, source_path: Path) -> list[str]:
-    """Chemins locaux de graphic/@url et pb/@facs introuvables sur disque."""
+def _check_local_media(
+    elements: list, source_path: Path
+) -> tuple[list[str], list[str]]:
+    """Chemins locaux de graphic/@url et pb/@facs : (existants, introuvables).
+
+    Les valeurs existantes sont retournées telles qu'écrites dans le TEI :
+    elles servent à la XSLT pour décider d'afficher une image ou un lien
+    (paramètre existing-media). Les références "#id", les URL distantes et
+    les data: sont ignorées — aucune ressource distante n'est chargée.
+    """
+    existing: list[str] = []
     missing: list[str] = []
     seen: set[str] = set()
     base = source_path.resolve().parent
@@ -190,6 +232,8 @@ def _check_local_media(elements: list, source_path: Path) -> list[str]:
         if value in seen:
             continue
         seen.add(value)
-        if not (base / value).is_file():
+        if (base / value).is_file():
+            existing.append(value)
+        else:
             missing.append(f"<{name}> → {value}")
-    return missing
+    return existing, missing
