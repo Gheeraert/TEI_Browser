@@ -1,0 +1,9 @@
+{
+  "name": "diagnostic",
+  "description": "Mode diagnostic : éléments non traités surlignés, variantes et témoins visibles.",
+  "xslt": "tei-common.xsl",
+  "params": {
+    "show-pb": "true"
+  },
+  "css": ["base.css", "diagnostic.css"]
+}

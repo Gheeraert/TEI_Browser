@@ -1,0 +1,9 @@
+{
+  "name": "prose",
+  "description": "Lecture courante : prose simple, sauts de page affichés, apparat réduit à la leçon retenue.",
+  "xslt": "tei-common.xsl",
+  "params": {
+    "show-pb": "true"
+  },
+  "css": ["base.css"]
+}

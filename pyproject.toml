@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tei-reader"
+version = "0.1.0"
+description = "Lecteur TEI-XML autonome : TEI -> XSLT (SaxonC-HE) -> HTML -> webview"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Tony Gheeraert" }]
+dependencies = [
+    "saxonche>=12.5",
+    "lxml>=5.0",
+]
+
+[project.optional-dependencies]
+ui = ["pywebview>=5.0"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+tei-reader = "tei_reader.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tei_reader*"]
+
+[tool.setuptools.package-data]
+tei_reader = ["resources/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

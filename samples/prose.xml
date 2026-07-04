@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Pensées diverses — échantillon de prose</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Échantillon de test, domaine public.</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Fichier créé pour les tests du lecteur TEI.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <div type="chapter" n="1">
+        <head>De la lecture</head>
+        <p>Quand on lit trop vite ou trop doucement, on
+          <hi rend="italic">n'entend rien</hi>.</p>
+        <p xml:id="p2">La vraie éloquence se moque de l'éloquence,
+          la vraie morale se moque de la morale.<note place="foot">C'est-à-dire
+          que la morale du jugement se moque de la morale de l'esprit.</note></p>
+        <pb n="12"/>
+        <p>Le silence éternel de ces espaces infinis<lb/>m'effraie.</p>
+        <p>Il écrivait en <foreign xml:lang="la">latin</foreign> et citait :
+          <quote>Vanitas vanitatum</quote>.</p>
+      </div>
+    </body>
+  </text>
+</TEI>

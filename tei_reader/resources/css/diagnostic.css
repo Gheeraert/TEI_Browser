@@ -1,0 +1,27 @@
+/* diagnostic.css — surcouche du profil "diagnostic".
+   Rend visibles les éléments non traités et l'apparat complet. */
+
+.tei-unhandled {
+  background: #fff3cd;
+  outline: 1px dotted #b8860b;
+}
+.tei-unhandled::after {
+  content: " ⟨" attr(data-tei) "⟩";
+  color: #b8860b;
+  font-size: 0.7em;
+  vertical-align: super;
+}
+
+.tei-rdg {
+  display: inline;
+  color: #8b0000;
+}
+.tei-rdg::before { content: " | "; color: #999; }
+.tei-rdg[data-tei-wit]::after {
+  content: " (" attr(data-tei-wit) ")";
+  color: #999;
+  font-size: 0.8em;
+}
+.tei-app { outline: 1px dotted #8b0000; }
+
+.tei-note { background: #eef3f8; }

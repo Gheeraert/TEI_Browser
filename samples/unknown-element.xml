@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Échantillon avec éléments imprévus</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Échantillon de test.</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Fichier créé pour tester le fallback.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <div>
+        <head>Test du fallback</head>
+        <p>Un paragraphe contenant un élément TEI réel mais non traité :
+          <persName ref="#pascal" type="historical">Blaise Pascal</persName>,
+          et un élément inventé : <blorb rend="italic">texte dans un élément
+          inconnu</blorb>, qui doit rester lisible.</p>
+        <p>Un début d'apparat : <app><lem wit="#A">leçon retenue</lem><rdg
+          wit="#B">variante</rdg></app>, rendu minimal attendu.</p>
+      </div>
+    </body>
+  </text>
+</TEI>
