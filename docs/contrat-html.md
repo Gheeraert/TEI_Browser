@@ -23,7 +23,8 @@ Liste des éléments traités, côté Python : `HANDLED_ELEMENTS` dans
 4. Les attributs savants sont conservés en **`data-tei-<nom>`** — le
    préfixe `tei` évite toute collision avec des `data-*` d'outillage :
    `type`, `subtype`, `n`, `place`, `ana`, `ref`, `corresp`, `facs`,
-   `rend`, `wit`, `target`, `url`, `who`, `met`, `part`.
+   `rend`, `wit`, `target`, `url`, `who`, `met`, `part`, `cert`, `resp`,
+   `hand`, `reason`, `extent`, `unit`, `seq`, `instant`, `status`.
 5. Le `teiHeader` n'est pas rendu dans le corps ; le premier
    `titleStmt/title` devient le `<title>` du document HTML.
 6. Le document produit est du HTML5 autonome, sans JavaScript, avec une
@@ -134,6 +135,29 @@ Actes et scènes sont des `tei:div` ordinaires : c'est `data-tei-type`
    d'apparat.
 3. Les sigles de témoins (`@wit`) sont affichés en mode diagnostic via
    CSS (`attr(data-tei-wit)`), jamais insérés dans le texte.
+
+### Transcription et normalisation éditoriale
+
+| TEI | HTML | Notes |
+|---|---|---|
+| `add` | `<span class="tei-add" data-tei-place data-tei-hand>` | ajout visible, stylé sobrement en CSS |
+| `del` | `<span class="tei-del">` | suppression barrée ; le texte n'est pas perdu |
+| `subst` | `<span class="tei-subst">` | conteneur d'une substitution, conserve `del` et `add` |
+| `choice` | `<span class="tei-choice">` | conteneur d'alternatives éditoriales |
+| `orig`, `reg` | `<span class="tei-orig/reg">` | forme originale / régularisée |
+| `sic`, `corr` | `<span class="tei-sic/corr">` | forme fautive / corrigée |
+| `abbr`, `expan` | `<span class="tei-abbr/expan">` | abréviation / développement |
+| `unclear` | `<span class="tei-unclear" data-tei-cert data-tei-resp>` | lecture incertaine |
+| `gap` | `<span class="tei-gap" data-tei-reason data-tei-extent data-tei-unit>[lacune]</span>` | marqueur textuel si l'élément est vide |
+| `supplied` | `<span class="tei-supplied" data-tei-reason>` | texte restitué, crochets en CSS |
+
+**Décision éditoriale (étape 3)** : le lecteur ne choisit pas
+silencieusement entre `orig/reg`, `sic/corr` ou `abbr/expan`. En profil
+courant, toutes les formes présentes dans `choice` restent dans le HTML
+et sont affichées avec un séparateur sobre. En profil `diagnostic`, les
+formes sont étiquetées par CSS (`orig:`, `reg:`, etc.). Une future
+interface pourra masquer ou privilégier une forme, mais le contrat
+conserve les alternatives et leurs attributs dès maintenant.
 
 ### Correspondance
 

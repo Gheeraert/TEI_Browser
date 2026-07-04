@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
+import re
 from pathlib import Path
 
 from lxml import etree
@@ -37,6 +38,9 @@ HANDLED_ELEMENTS = frozenset({
     "opener", "closer", "dateline", "salute", "signed", "address", "addrLine",
     # apparat critique et témoins
     "app", "lem", "rdg", "listWit", "witness",
+    # transcription et normalisation éditoriale
+    "add", "del", "subst", "choice", "orig", "reg", "sic", "corr",
+    "abbr", "expan", "unclear", "gap", "supplied",
     # fac-similés
     "graphic",
 })
@@ -226,8 +230,7 @@ def _check_local_media(
             value = el.get("facs")
         else:
             continue
-        if not value or value.startswith("#") or "://" in value \
-                or value.startswith("data:"):
+        if not _is_local_media_reference(value):
             continue
         if value in seen:
             continue
@@ -237,3 +240,17 @@ def _check_local_media(
         else:
             missing.append(f"<{name}> → {value}")
     return existing, missing
+
+
+def _is_local_media_reference(value: str) -> bool:
+    """True pour les chemins de fichiers locaux relatifs au TEI source.
+
+    Les URI distantes, protocol-relative (`//host/...`), `data:`, `urn:`,
+    etc. ne doivent ni déclencher d'accès disque/réseau ni produire de faux
+    diagnostics `missing-media`.
+    """
+    if not value or value.startswith("#") or value.startswith("//"):
+        return False
+    if re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", value):
+        return False
+    return True

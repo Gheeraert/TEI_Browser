@@ -14,3 +14,26 @@
 }
 
 span.tei-note { background: #eef3f8; }
+
+.tei-choice {
+  background: #f4f8ff;
+  outline: 1px dotted #6b86b8;
+}
+.tei-orig::before { content: " orig: "; color: #6b86b8; font-size: 0.75em; }
+.tei-reg::before { content: " reg: "; color: #6b86b8; font-size: 0.75em; }
+.tei-sic::before { content: " sic: "; color: #6b86b8; font-size: 0.75em; }
+.tei-corr::before { content: " corr: "; color: #6b86b8; font-size: 0.75em; }
+.tei-abbr::before { content: " abbr: "; color: #6b86b8; font-size: 0.75em; }
+.tei-expan::before { content: " expan: "; color: #6b86b8; font-size: 0.75em; }
+.tei-add[data-tei-place]::after {
+  content: " ⟨add:" attr(data-tei-place) "⟩";
+  color: #6b86b8;
+  font-size: 0.7em;
+  vertical-align: super;
+}
+.tei-gap[data-tei-reason]::after {
+  content: " ⟨gap:" attr(data-tei-reason) "⟩";
+  color: #6b86b8;
+  font-size: 0.7em;
+  vertical-align: super;
+}

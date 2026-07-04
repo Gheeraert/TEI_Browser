@@ -34,6 +34,37 @@ h1.tei-head, h2.tei-head, h3.tei-head, h4.tei-head, h5.tei-head, h6.tei-head {
 .tei-quote::before, .tei-q::before { content: "« "; }
 .tei-quote::after, .tei-q::after { content: " »"; }
 
+/* Transcription : rendu sobre, sans choix éditorial silencieux */
+.tei-add {
+  border-bottom: 1px solid #777;
+}
+.tei-del {
+  color: #777;
+  text-decoration: line-through;
+}
+.tei-subst {
+  white-space: nowrap;
+}
+.tei-choice {
+  white-space: nowrap;
+}
+.tei-choice .tei-reg::before,
+.tei-choice .tei-corr::before,
+.tei-choice .tei-expan::before {
+  content: " / ";
+  color: #777;
+}
+.tei-unclear {
+  text-decoration: underline dotted #777;
+  text-underline-offset: 0.15em;
+}
+.tei-gap {
+  color: #777;
+  font-style: italic;
+}
+.tei-supplied::before { content: "["; color: #777; }
+.tei-supplied::after { content: "]"; color: #777; }
+
 /* Notes — mode inline */
 span.tei-note {
   font-size: 0.85em;

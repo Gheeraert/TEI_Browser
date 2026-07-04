@@ -112,7 +112,7 @@ def test_pb_facs_local_becomes_link(images):
 
 
 def test_no_remote_media_ever(tmp_path):
-    # une URL distante ne produit ni img ni missing-media : ignorée
+    # une référence non locale ne produit ni img ni missing-media : ignorée
     remote = tmp_path / "remote.xml"
     remote.write_text(
         '<TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><fileDesc>'
@@ -121,6 +121,9 @@ def test_no_remote_media_ever(tmp_path):
         "<sourceDesc><p>s</p></sourceDesc></fileDesc></teiHeader>"
         "<text><body><p>x</p>"
         '<graphic url="https://example.org/image.png"/>'
+        '<graphic url="//example.org/image.png"/>'
+        '<graphic url="DATA:image/png;base64,AAAA"/>'
+        '<graphic url="urn:example:image"/>'
         "</body></text></TEI>",
         encoding="utf-8",
     )
@@ -129,6 +132,9 @@ def test_no_remote_media_ever(tmp_path):
     html = result.html_path.read_text(encoding="utf-8")
     assert "<img" not in html
     assert "[image : https://example.org/image.png]" in html
+    assert "[image : //example.org/image.png]" in html
+    assert "[image : DATA:image/png;base64,AAAA]" in html
+    assert "[image : urn:example:image]" in html
     assert not any(d.code == "missing-media" for d in result.diagnostics)
 
 

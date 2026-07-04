@@ -70,7 +70,9 @@
 
   <xsl:variable name="data-attributes"
       select="('type','subtype','n','place','ana','ref','corresp','facs',
-               'rend','wit','target','url','who','met','part')"/>
+               'rend','wit','target','url','who','met','part',
+               'cert','resp','hand','reason','extent','unit','seq',
+               'instant','status')"/>
 
   <xsl:template name="data-atts">
     <xsl:for-each select="@*[local-name() = $data-attributes
@@ -150,6 +152,42 @@
       <xsl:call-template name="tei-atts"/>
       <xsl:apply-templates/>
     </em>
+  </xsl:template>
+
+  <!-- =========== Transcription et normalisation éditoriale ===== -->
+  <!-- Rendu volontairement sobre : tous les témoins textuels restent dans
+       le HTML. Les alternatives de choice (orig/reg, sic/corr, abbr/expan)
+       ne sont pas tranchées silencieusement ; leur lisibilité est pilotée
+       par CSS, avec étiquettes explicites en profil diagnostic. -->
+
+  <xsl:template match="tei:subst | tei:choice">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="tei:add | tei:del | tei:orig | tei:reg | tei:sic
+                       | tei:corr | tei:abbr | tei:expan | tei:unclear
+                       | tei:supplied">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="tei:gap">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:choose>
+        <xsl:when test="node()">
+          <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>[lacune]</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+    </span>
   </xsl:template>
 
   <!-- ===================== Notes ============================= -->
