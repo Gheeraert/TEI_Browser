@@ -1,0 +1,10 @@
+{
+  "name": "drama",
+  "description": "Théâtre : actes et scènes centrés, locuteurs en petites capitales, didascalies en italique, distribution encadrée. Notes en fin de document. Inclut verse.css pour les pièces en vers.",
+  "xslt": "tei-common.xsl",
+  "params": {
+    "show-pb": "true",
+    "note-mode": "end"
+  },
+  "css": ["base.css", "verse.css", "drama.css"]
+}

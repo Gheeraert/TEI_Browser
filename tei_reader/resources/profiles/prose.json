@@ -1,9 +1,10 @@
 {
   "name": "prose",
-  "description": "Lecture courante : prose simple, sauts de page affichés, apparat réduit à la leçon retenue.",
+  "description": "Lecture courante : prose (roman, essai, correspondance). Notes en fin de document, sauts de page affichés, apparat réduit à la leçon retenue.",
   "xslt": "tei-common.xsl",
   "params": {
-    "show-pb": "true"
+    "show-pb": "true",
+    "note-mode": "end"
   },
   "css": ["base.css"]
 }

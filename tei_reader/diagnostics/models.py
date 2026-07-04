@@ -28,6 +28,7 @@ class RenderResult:
     diagnostics_path: Path | None
     diagnostics: list[Diagnostic]
     profile: str
+    summary: dict[str, Any] | None = None
 
     @property
     def errors(self) -> list[Diagnostic]:

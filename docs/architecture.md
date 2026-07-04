@@ -64,15 +64,32 @@ respectant `TransformEngine`, sans toucher au reste.
 **Règle : seul `transform/saxon_engine.py` importe saxonche.** C'est le
 verrou anti-dépendance : remplacer le moteur = remplacer un module.
 
-### Diagnostics par inventaire lxml, pas par xsl:message
+### Diagnostics par analyse lxml, pas par xsl:message
 
-Les éléments non traités sont détectés en Python (comparaison à
-`HANDLED_ELEMENTS`) plutôt que par des `xsl:message` interceptés : la
-récupération des messages de SaxonC côté Python est fragile, et
-l'inventaire lxml fonctionne même si la transformation échoue.
-**Contrainte de maintenance** : quand on ajoute un template dans
-`tei-common.xsl`, il faut ajouter l'élément à `HANDLED_ELEMENTS` dans
-`core/document.py` (et inversement).
+Les diagnostics sont produits en Python (`core/document.py :: analyze`)
+plutôt que par des `xsl:message` interceptés : la récupération des
+messages de SaxonC côté Python est fragile, et l'analyse lxml fonctionne
+même si la transformation échoue. L'analyse produit :
+
+- l'inventaire des éléments (non traités / hors TEI / rendu minimal /
+  hors rendu) par comparaison à `HANDLED_ELEMENTS` ;
+- un **résumé chiffré** (éléments distincts, occurrences non traitées,
+  comptes de `note`, `app`, `pb`, `graphic`) inclus dans le JSON ;
+- la vérification des **références locales** `#id` (`ref`, `target`,
+  `corresp`, `ana`, `wit`, `who`, `facs`) → `broken-local-ref` ;
+- la vérification des **médias locaux** (`graphic/@url`, `pb/@facs`)
+  → `missing-media`.
+
+Codes de diagnostic : `xml-error` (bloquant), `transform-error`
+(bloquant), `profile-unknown` / `profile-invalid` / `missing-xslt` /
+`missing-css` (bloquants), `not-tei`, `unknown-elements`,
+`non-tei-elements`, `broken-local-ref`, `missing-media` (warnings),
+`minimal-rendering`, `signaled-only` (infos).
+
+La synchronisation `HANDLED_ELEMENTS` ↔ templates de `tei-common.xsl`
+est **vérifiée automatiquement** par `tests/test_contract_sync.py`, qui
+extrait les noms `tei:*` des attributs `@match` de la XSLT et les compare
+aux ensembles Python. Toute divergence fait échouer la suite de tests.
 
 ### Profils hybrides
 
@@ -116,12 +133,31 @@ navigateur : prétransformation hors navigateur, moteur JS libre s'il en
 existe un satisfaisant, ou rendu direct type Custom Elements (CETEIcean)
 réimplémentant le contrat HTML.
 
-## Étapes suivantes envisagées (hors étape 0)
+## État de l'étape 1
 
-- modules XSLT par genre (`verse.xsl`, `drama.xsl`, `letters.xsl`) par
-  import/surcharge de `tei-common.xsl`, avec profils JSON associés ;
+L'étape 1 a étendu le rendu (poésie, théâtre, notes à deux modes,
+apparat minimal, témoins), enrichi les diagnostics (résumé, références,
+médias), ajouté la commande `inspect` et le test de synchronisation
+XSLT/Python. Choix notable : **une seule XSLT commune** (`tei-common.xsl`)
+pour tous les genres à ce stade — les profils ne diffèrent que par
+paramètres et CSS. Le mécanisme de surcharge par genre (une feuille
+`drama.xsl` qui importerait `tei-common.xsl`) reste prévu par le format
+de profil (champ `xslt`) mais n'est pas encore nécessaire : aucune
+différence *structurelle* de rendu ne l'exige encore.
+
+Décisions éditoriales de l'étape 1 (détail dans le contrat HTML) :
+le texte des variantes n'est jamais perdu (visibilité par CSS) ; un
+`app` sans `lem` affiche son premier `rdg` (`tei-rdg-default`) ; la
+numérotation des vers est purement CSS ; les notes finales conservent
+tous leurs attributs pour permettre les modes futurs.
+
+## Étapes suivantes envisagées
+
+- module correspondance (`opener`, `closer`, `dateline`, `salute`) ;
+- affichage réel des images locales (fac-similés) ;
+- notes marginales flottantes (mode `margin`) ;
 - cascade de réglages (défauts globaux → profil → corpus → fichier) ;
-- vraie interface d'apparat critique et affichage des fac-similés locaux ;
+- vraie interface d'apparat critique ;
 - rechargement à chaud des profils dans l'UI ;
 - isolation sous-processus du moteur si nécessaire ;
 - tests de non-régression par snapshots HTML normalisés et test de

@@ -1,0 +1,37 @@
+/* verse.css — surcouche du profil "verse" (poésie).
+   S'ajoute à base.css ; sélecteurs conformes au contrat HTML. */
+
+.tei-lg {
+  margin: 1.2em 0 1.2em 3.5em;
+}
+
+.tei-lg .tei-head {
+  font-size: 1em;
+  font-style: italic;
+  font-weight: normal;
+  margin: 0.5em 0;
+}
+
+.tei-l {
+  display: block;
+  position: relative;
+}
+
+/* Numéro de vers dans la marge gauche quand @n existe */
+.tei-l[data-tei-n]::before {
+  content: attr(data-tei-n);
+  position: absolute;
+  left: -3em;
+  width: 2.4em;
+  text-align: right;
+  color: #999;
+  font-size: 0.75em;
+  top: 0.3em;
+  user-select: none;
+}
+
+/* Vers partagés (@part) : retrait des segments médians et finaux */
+.tei-l[data-tei-part="M"],
+.tei-l[data-tei-part="F"] {
+  padding-left: 4em;
+}

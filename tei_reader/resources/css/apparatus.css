@@ -1,0 +1,26 @@
+/* apparatus.css — affichage complet de l'apparat critique.
+   Inclus par le profil "diagnostic" (et tout futur profil "édition
+   critique"). Sans cette feuille, base.css n'affiche que la leçon
+   retenue ; le texte des variantes est toujours présent dans le HTML. */
+
+.tei-app {
+  outline: 1px dotted #8b0000;
+  padding: 0 0.15em;
+}
+
+.tei-lem[data-tei-wit]::after {
+  content: " (" attr(data-tei-wit) ")";
+  color: #777;
+  font-size: 0.8em;
+}
+
+.tei-rdg {
+  display: inline;
+  color: #8b0000;
+}
+.tei-rdg::before { content: " | "; color: #999; }
+.tei-rdg[data-tei-wit]::after {
+  content: " (" attr(data-tei-wit) ")";
+  color: #999;
+  font-size: 0.8em;
+}

@@ -111,4 +111,4 @@ def test_missing_file_fails_cleanly(tmp_path):
 def test_unknown_profile_fails_cleanly(tmp_path):
     result = render(SAMPLES / "prose.xml", profile="inexistant", out_dir=tmp_path)
     assert not result.ok
-    assert result.errors[0].code == "profile-error"
+    assert result.errors[0].code == "profile-unknown"

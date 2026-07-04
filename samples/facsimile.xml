@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Feuillets — échantillon fac-similé</title>
+      </titleStmt>
+      <publicationStmt><p>Échantillon de test, domaine public.</p></publicationStmt>
+      <sourceDesc><p>Fichier créé pour les tests du lecteur TEI.
+        Les images liées sont volontairement absentes du disque.</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <facsimile>
+    <surface xml:id="surf1">
+      <graphic url="images/page1-absente.png"/>
+    </surface>
+  </facsimile>
+  <text>
+    <body>
+      <div>
+        <head>Feuillets</head>
+        <pb n="1" facs="#surf1"/>
+        <p>Texte du premier feuillet, lié à une surface du fac-similé.</p>
+        <pb n="2" facs="images/page2-absente.png"/>
+        <p>Texte du second feuillet, dont le fac-similé local est
+          introuvable : le diagnostic doit le signaler.</p>
+        <p>Image dans le corps du texte :
+          <graphic url="images/vignette-absente.png"/>.</p>
+      </div>
+    </body>
+  </text>
+</TEI>

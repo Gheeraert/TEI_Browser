@@ -1,0 +1,10 @@
+{
+  "name": "verse",
+  "description": "Poésie : strophes, vers numérotés dans la marge, vers partagés en retrait. Notes en fin de document.",
+  "xslt": "tei-common.xsl",
+  "params": {
+    "show-pb": "true",
+    "note-mode": "end"
+  },
+  "css": ["base.css", "verse.css"]
+}

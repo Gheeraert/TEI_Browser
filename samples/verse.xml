@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Stances — échantillon de poésie</title>
+      </titleStmt>
+      <publicationStmt><p>Échantillon de test, domaine public.</p></publicationStmt>
+      <sourceDesc><p>Fichier créé pour les tests du lecteur TEI.</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <div type="poem">
+        <head>Stances à la nuit</head>
+        <lg type="quatrain" met="12" n="1">
+          <l n="1">Ô nuit, charmante nuit, mère du doux silence,</l>
+          <l n="2">Toi qui verses la paix aux cœurs infortunés,</l>
+          <l n="3">Reçois entre tes bras mes soupirs obstinés<note
+            place="foot">Var. : « mes ennuis obstinés ».</note>,</l>
+          <l n="4">Et couvre de ton ombre une longue souffrance.</l>
+        </lg>
+        <lg type="quatrain" met="12" n="2">
+          <head>Second mouvement</head>
+          <l n="5">Le jour m'est odieux, sa lumière me blesse,</l>
+          <l n="6" part="I">Je fuis —</l>
+          <l n="6" part="F">et je ne puis me fuir.</l>
+          <l n="7">Tout ce que j'aperçois m'accable de tristesse,</l>
+          <l n="8">Et je n'ai plus de vœux que pour m'en souvenir.</l>
+        </lg>
+      </div>
+    </body>
+  </text>
+</TEI>

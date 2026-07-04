@@ -1,0 +1,60 @@
+/* drama.css — surcouche du profil "drama" (théâtre).
+   S'ajoute à base.css ; sélecteurs conformes au contrat HTML. */
+
+/* Actes et scènes (tei:div avec @type) */
+.tei-div[data-tei-type="act"] > .tei-head {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 2em 0 1em;
+}
+.tei-div[data-tei-type="scene"] > .tei-head {
+  text-align: center;
+  font-variant: small-caps;
+  font-weight: normal;
+  margin: 1.5em 0 1em;
+}
+
+/* Répliques */
+.tei-sp { margin: 0.9em 0; }
+.tei-speaker {
+  display: block;
+  text-align: center;
+  font-variant: small-caps;
+  margin: 0.6em 0 0.15em;
+}
+.tei-sp .tei-p {
+  margin: 0 0 0.3em;
+  text-align: left;
+}
+
+/* Didascalies : bloc en retrait par défaut, inline dans une réplique
+   en prose ou en vers */
+.tei-stage {
+  display: block;
+  font-style: italic;
+  color: #444;
+  margin: 0.5em 2em;
+}
+.tei-p .tei-stage,
+.tei-l .tei-stage,
+.tei-speaker .tei-stage {
+  display: inline;
+  margin: 0;
+}
+
+/* Distribution */
+.tei-castList {
+  margin: 1.5em 0 2em;
+  padding: 0.8em 1.2em;
+  border: 1px solid #ddd;
+  background: #faf8f2;
+}
+.tei-castList .tei-head {
+  font-size: 1em;
+  text-align: center;
+  margin: 0.2em 0 0.8em;
+}
+.tei-castItem { margin: 0.25em 0; }
+.tei-role { font-variant: small-caps; }
+.tei-roleDesc { font-style: italic; color: #555; }

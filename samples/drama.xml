@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Le Dépit amoureux — échantillon de théâtre</title>
+      </titleStmt>
+      <publicationStmt><p>Échantillon de test, domaine public.</p></publicationStmt>
+      <sourceDesc><p>Fichier créé pour les tests du lecteur TEI.</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <castList>
+        <head>Acteurs</head>
+        <castItem>
+          <role xml:id="eraste">Éraste</role>,
+          <roleDesc>amant de Lucile</roleDesc>.
+        </castItem>
+        <castItem>
+          <role xml:id="marinette">Marinette</role>,
+          <roleDesc>suivante de Lucile</roleDesc>.
+        </castItem>
+      </castList>
+    </front>
+    <body>
+      <div type="act" n="I">
+        <head>Acte premier</head>
+        <div type="scene" n="1">
+          <head>Scène première</head>
+          <stage>Le théâtre représente une place publique.</stage>
+          <sp who="#eraste">
+            <speaker>Éraste</speaker>
+            <l n="1">Veux-tu que je te die ? une atteinte secrète</l>
+            <l n="2">Ne laisse point mon âme en une bonne assiette.</l>
+          </sp>
+          <sp who="#marinette">
+            <speaker>Marinette</speaker>
+            <p>Quoi ! vous doutez encore ? <stage>Elle rit.</stage> Vous
+              êtes bien malade d'un mal imaginaire.</p>
+          </sp>
+          <stage>Éraste se promène, rêveur.</stage>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>

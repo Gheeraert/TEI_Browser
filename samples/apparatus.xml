@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Fragment — échantillon d'apparat critique</title>
+      </titleStmt>
+      <publicationStmt><p>Échantillon de test, domaine public.</p></publicationStmt>
+      <sourceDesc><p>Fichier créé pour les tests du lecteur TEI.</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <listWit>
+        <head>Témoins</head>
+        <witness xml:id="A">A : édition originale, 1670.</witness>
+        <witness xml:id="B">B : copie manuscrite, BnF.</witness>
+      </listWit>
+    </front>
+    <body>
+      <div>
+        <head>Fragment</head>
+        <p>L'homme n'est qu'un <app><lem wit="#A">roseau pensant</lem><rdg
+          wit="#B">roseau qui pense</rdg></app>, le plus faible de la nature.</p>
+        <p>Apparat sans leçon retenue : la nature <app><rdg wit="#A">confond
+          les pyrrhoniens</rdg><rdg wit="#B">soutient la raison</rdg></app>.</p>
+        <p>Référence volontairement cassée : <app><lem wit="#A">texte</lem><rdg
+          wit="#Z">variante orpheline</rdg></app>.</p>
+      </div>
+    </body>
+  </text>
+</TEI>

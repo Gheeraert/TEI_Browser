@@ -3,6 +3,7 @@
 Usage :
     tei-reader render fichier.xml [--profile prose] [--out out] [--open]
     tei-reader view fichier.xml [--profile prose] [--out out]
+    tei-reader inspect fichier.xml
     tei-reader profiles
 """
 
@@ -13,8 +14,8 @@ import sys
 import webbrowser
 from pathlib import Path
 
-from tei_reader.core.service import render
-from tei_reader.profiles.loader import list_profiles
+from tei_reader.core.service import inspect_file, render
+from tei_reader.profiles.loader import list_profiles, load_profile
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -37,20 +38,27 @@ def main(argv: list[str] | None = None) -> int:
     p_view = sub.add_parser("view", help="Transformer puis afficher dans une webview")
     _add_common(p_view)
 
+    p_inspect = sub.add_parser(
+        "inspect",
+        help="Analyser un fichier TEI (résumé + diagnostics) sans produire de HTML",
+    )
+    p_inspect.add_argument("file", help="Fichier TEI-XML à analyser")
+
     sub.add_parser("profiles", help="Lister les profils disponibles")
 
     args = parser.parse_args(argv)
 
     if args.command == "profiles":
         for name in list_profiles():
-            print(name)
+            prof = load_profile(name)
+            print(f"{name:<12} {prof.description}")
         return 0
 
-    result = render(Path(args.file), profile=args.profile, out_dir=Path(args.out))
+    if args.command == "inspect":
+        return _inspect(Path(args.file))
 
-    for diag in result.diagnostics:
-        stream = sys.stderr if diag.level == "error" else sys.stdout
-        print(f"[{diag.level}] {diag.code}: {diag.message}", file=stream)
+    result = render(Path(args.file), profile=args.profile, out_dir=Path(args.out))
+    _print_diagnostics(result.diagnostics)
 
     if not result.ok:
         return 1
@@ -65,6 +73,27 @@ def main(argv: list[str] | None = None) -> int:
         webbrowser.open(result.html_path.resolve().as_uri())
 
     return 0
+
+
+def _inspect(path: Path) -> int:
+    result = inspect_file(path)
+    _print_diagnostics(result.diagnostics)
+    if not result.ok:
+        return 1
+    s = result.summary
+    print(f"Éléments TEI distincts : {s['distinct_tei_elements']}")
+    print(f"Éléments non traités : {s['unhandled_occurrences']} occurrence(s)"
+          + (f" — {', '.join(s['unhandled_elements'])}"
+             if s["unhandled_elements"] else ""))
+    for name, count in s["counts"].items():
+        print(f"  {name} : {count}")
+    return 0
+
+
+def _print_diagnostics(diagnostics) -> None:
+    for diag in diagnostics:
+        stream = sys.stderr if diag.level == "error" else sys.stdout
+        print(f"[{diag.level}] {diag.code}: {diag.message}", file=stream)
 
 
 def _add_common(p: argparse.ArgumentParser) -> None:

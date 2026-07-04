@@ -1,9 +1,10 @@
 {
   "name": "diagnostic",
-  "description": "Mode diagnostic : éléments non traités surlignés, variantes et témoins visibles.",
+  "description": "Mode diagnostic : éléments non traités surlignés avec leur nom TEI, apparat complet (leçons, variantes, témoins), notes inline.",
   "xslt": "tei-common.xsl",
   "params": {
-    "show-pb": "true"
+    "show-pb": "true",
+    "note-mode": "inline"
   },
-  "css": ["base.css", "diagnostic.css"]
+  "css": ["base.css", "apparatus.css", "diagnostic.css"]
 }

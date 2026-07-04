@@ -1,43 +1,69 @@
-"""Chargement sécurisé du XML source et inventaire des éléments.
+"""Chargement sécurisé du XML source et analyse du document.
 
-Le parsing préalable avec lxml sert deux objectifs :
+Le parsing préalable avec lxml sert trois objectifs :
 1. sécurité — entités externes, DTD et réseau désactivés avant tout
    passage à SaxonC ;
-2. diagnostics — inventaire des éléments que la XSLT ne traite pas.
+2. diagnostics — inventaire des éléments non traités, vérification des
+   références locales et des médias liés ;
+3. résumé — comptages utiles (notes, apparats, sauts de page, images).
 """
 
 from __future__ import annotations
 
 from collections import Counter
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from lxml import etree
 
 TEI_NS = "http://www.tei-c.org/ns/1.0"
+XML_ID = "{http://www.w3.org/XML/1998/namespace}id"
 
-# Doit rester synchronisé avec les templates de resources/xsl/tei-common.xsl.
+# Éléments disposant d'un template dédié dans resources/xsl/tei-common.xsl.
+# La synchronisation est vérifiée par tests/test_contract_sync.py.
 HANDLED_ELEMENTS = frozenset({
+    # structure
     "TEI", "teiCorpus", "teiHeader", "text", "front", "body", "back",
     "div", "head", "p",
+    # inline
     "hi", "emph", "foreign", "quote", "q",
+    # notes, sauts
     "note", "lb", "pb",
+    # poésie
     "lg", "l",
-    "app", "lem", "rdg",
+    # théâtre
+    "sp", "speaker", "stage", "castList", "castItem", "role", "roleDesc",
+    # apparat critique et témoins
+    "app", "lem", "rdg", "listWit", "witness",
+    # fac-similés
     "graphic",
 })
 
-# Reconnus mais volontairement rendus de manière minimale à l'étape 0
-# (décision utilisateur : apparat et fac-similés viendront plus tard).
+# Reconnus mais au rendu volontairement minimal à ce stade.
 RECOGNIZED_MINIMAL = frozenset({
-    "app", "lem", "rdg", "graphic",
+    "app", "lem", "rdg", "listWit", "witness", "graphic",
 })
 
-# Présents hors <text>, signalés mais non rendus.
-SIGNALED_ONLY = frozenset({"facsimile", "surface", "zone", "listWit", "witness"})
+# Présents mais hors rendu (subtree supprimé par la XSLT), signalés.
+SIGNALED_ONLY = frozenset({"facsimile", "surface", "zone", "standOff"})
+
+# Attributs pouvant contenir des références locales "#id".
+REF_ATTRIBUTES = ("ref", "target", "corresp", "ana", "wit", "who", "facs")
+
+# Éléments comptés dans le résumé des diagnostics.
+SUMMARY_COUNTED = ("note", "app", "pb", "graphic")
 
 
 class DocumentError(Exception):
     """XML illisible : mal formé, introuvable ou vide."""
+
+
+@dataclass
+class Analysis:
+    inventory: dict[str, Counter]
+    summary: dict
+    broken_refs: list[str] = field(default_factory=list)
+    missing_media: list[str] = field(default_factory=list)
 
 
 def safe_parse(path: Path) -> etree._ElementTree:
@@ -56,45 +82,44 @@ def safe_parse(path: Path) -> etree._ElementTree:
         raise DocumentError(f"XML mal formé : {exc}") from exc
 
 
-def local_name(element: etree._Element) -> str:
-    return etree.QName(element).localname
-
-
 def is_tei(tree: etree._ElementTree) -> bool:
-    root = tree.getroot()
-    return etree.QName(root).namespace == TEI_NS
+    return etree.QName(tree.getroot()).namespace == TEI_NS
 
 
-def inventory(tree: etree._ElementTree) -> dict[str, Counter]:
-    """Inventorie les éléments du document pour les diagnostics.
-
-    - "unknown"   : éléments TEI de <text> sans template dédié (fallback) ;
-    - "non_tei"   : éléments hors espace de noms TEI ;
-    - "minimal"   : éléments reconnus mais au rendu volontairement minimal ;
-    - "signaled"  : éléments hors rendu (facsimile, listWit...).
-    """
+def analyze(tree: etree._ElementTree, source_path: Path) -> Analysis:
+    """Analyse complète du document : inventaire, résumé, références, médias."""
     unknown: Counter = Counter()
     non_tei: Counter = Counter()
     minimal: Counter = Counter()
     signaled: Counter = Counter()
+    all_tei: Counter = Counter()
 
     root = tree.getroot()
     header_tag = f"{{{TEI_NS}}}teiHeader"
+    ids: set[str] = set()
 
+    elements = []
     for el in root.iter():
         if not isinstance(el.tag, str):
             continue  # commentaires, PI
+        elements.append(el)
+        xml_id = el.get(XML_ID)
+        if xml_id:
+            ids.add(xml_id)
+
+    for el in elements:
         qname = etree.QName(el)
         name = qname.localname
         if qname.namespace != TEI_NS:
             non_tei[name] += 1
             continue
+        all_tei[name] += 1
         if name in SIGNALED_ONLY:
             signaled[name] += 1
             continue
-        in_header = any(
+        in_header = el.tag == header_tag or any(
             anc.tag == header_tag for anc in el.iterancestors()
-        ) or el.tag == header_tag
+        )
         if in_header:
             continue
         if name in RECOGNIZED_MINIMAL:
@@ -102,9 +127,69 @@ def inventory(tree: etree._ElementTree) -> dict[str, Counter]:
         elif name not in HANDLED_ELEMENTS:
             unknown[name] += 1
 
-    return {
-        "unknown": unknown,
-        "non_tei": non_tei,
-        "minimal": minimal,
-        "signaled": signaled,
+    broken_refs = _check_local_refs(elements, ids)
+    missing_media = _check_local_media(elements, source_path)
+
+    summary = {
+        "distinct_tei_elements": len(all_tei),
+        "unhandled_elements": sorted(unknown),
+        "unhandled_occurrences": sum(unknown.values()),
+        "counts": {name: all_tei.get(name, 0) for name in SUMMARY_COUNTED},
     }
+
+    return Analysis(
+        inventory={
+            "unknown": unknown,
+            "non_tei": non_tei,
+            "minimal": minimal,
+            "signaled": signaled,
+        },
+        summary=summary,
+        broken_refs=broken_refs,
+        missing_media=missing_media,
+    )
+
+
+def _check_local_refs(elements: list, ids: set[str]) -> list[str]:
+    """Références locales "#id" ne correspondant à aucun xml:id du document."""
+    broken: list[str] = []
+    seen: set[tuple[str, str]] = set()
+    for el in elements:
+        for attr in REF_ATTRIBUTES:
+            value = el.get(attr)
+            if not value:
+                continue
+            for token in value.split():
+                if not token.startswith("#"):
+                    continue
+                target = token[1:]
+                if target and target not in ids and (attr, token) not in seen:
+                    seen.add((attr, token))
+                    broken.append(
+                        f"@{attr}=\"{token}\" sur <{etree.QName(el).localname}>"
+                    )
+    return broken
+
+
+def _check_local_media(elements: list, source_path: Path) -> list[str]:
+    """Chemins locaux de graphic/@url et pb/@facs introuvables sur disque."""
+    missing: list[str] = []
+    seen: set[str] = set()
+    base = source_path.resolve().parent
+    for el in elements:
+        name = etree.QName(el).localname
+        if name == "graphic":
+            value = el.get("url")
+        elif name == "pb":
+            value = el.get("facs")
+        else:
+            continue
+        if not value or value.startswith("#") or "://" in value \
+                or value.startswith("data:"):
+            continue
+        if value in seen:
+            continue
+        seen.add(value)
+        if not (base / value).is_file():
+            missing.append(f"<{name}> → {value}")
+    return missing

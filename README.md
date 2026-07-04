@@ -40,16 +40,24 @@ sous Windows 11) ; `dev` installe pytest.
 ```powershell
 # Transformer un fichier TEI en HTML (dossier ./out par défaut)
 .\.venv\Scripts\tei-reader render samples\prose.xml --profile prose
+.\.venv\Scripts\tei-reader render samples\verse.xml --profile verse
+.\.venv\Scripts\tei-reader render samples\drama.xml --profile drama
+.\.venv\Scripts\tei-reader render samples\apparatus.xml --profile diagnostic
 
 # Transformer et ouvrir dans le navigateur par défaut
 .\.venv\Scripts\tei-reader render samples\prose.xml --open
 
 # Transformer et afficher dans une fenêtre webview
-.\.venv\Scripts\tei-reader view samples\prose.xml --profile diagnostic
+.\.venv\Scripts\tei-reader view samples\drama.xml --profile drama
+
+# Analyser un fichier sans produire de HTML (résumé + diagnostics)
+.\.venv\Scripts\tei-reader inspect samples\drama.xml
 
 # Lister les profils disponibles
 .\.venv\Scripts\tei-reader profiles
 ```
+
+(`python -m tei_reader …` fonctionne à l'identique.)
 
 Chaque rendu produit dans le dossier de sortie :
 
@@ -58,15 +66,20 @@ Chaque rendu produit dans le dossier de sortie :
 
 ## Profils
 
-Deux profils à l'étape 0, définis dans `tei_reader/resources/profiles/` :
+Quatre profils, définis dans `tei_reader/resources/profiles/` :
 
-- **prose** — lecture courante : apparat réduit à la leçon retenue,
-  éléments inconnus rendus de manière neutre ;
-- **diagnostic** — les éléments non traités sont surlignés avec leur nom TEI,
-  les variantes (`rdg`) et témoins sont visibles.
+- **prose** — lecture courante (roman, essai, correspondance) : notes en
+  fin de document, apparat réduit à la leçon retenue ;
+- **verse** — poésie : strophes, numéros de vers dans la marge, vers
+  partagés (`@part`) en retrait ;
+- **drama** — théâtre : actes/scènes centrés, locuteurs en petites
+  capitales, didascalies distinctes, distribution encadrée ;
+- **diagnostic** — éléments non traités surlignés avec leur nom TEI,
+  apparat complet (leçons, variantes, témoins), notes inline.
 
-Un profil est un JSON : feuille XSLT d'entrée, paramètres de transformation,
-liste de CSS. Modifier un profil ou une CSS ne demande jamais de toucher au XSLT.
+Un profil est un JSON : feuille XSLT d'entrée, paramètres de transformation
+(dont `note-mode` : `inline` ou `end`), liste de CSS. Modifier un profil ou
+une CSS ne demande jamais de toucher au XSLT.
 
 ## Structure du projet
 
@@ -110,14 +123,37 @@ un `RenderResult` d'erreur).
    `render samples\prose.xml --open` (ou `view samples\prose.xml`).
 3. Les tests se lancent par clic droit sur `tests/` → Run pytest.
 
-## Limites connues de l'étape 0
+## État de l'étape 1
 
-- Rendu volontairement minimal : ~20 éléments TEI traités, le reste passe
-  par le fallback. Théâtre, correspondance, notes savantes : étapes suivantes.
-- Apparat critique (`app/lem/rdg`) : rendu linéaire simple, la vraie interface
-  d'apparat viendra plus tard. Fac-similés : simple marqueur `[image : url]`.
-- SaxonC s'exécute dans le processus principal (appel direct, garde-fou
-  validé) ; l'isolation en sous-processus viendra si les crashs natifs ou le
+**Ce qui marche** : prose, poésie (strophes, vers numérotés, vers partagés,
+métrique conservée), théâtre (actes, scènes, locuteurs, didascalies,
+distribution), notes en deux modes (inline / fin de document), apparat
+critique minimal sans perte de texte, témoins, fallback lisible pour tout
+élément inconnu, diagnostics enrichis (résumé chiffré, références locales
+cassées, images manquantes), commande `inspect`, synchronisation
+XSLT/Python vérifiée par test.
+
+**Volontairement minimal** : apparat linéaire (pas d'interface critique) ;
+fac-similés en simple marqueur ; notes marginales rendues comme les autres
+(l'attribut `place` est conservé pour plus tard) ; correspondance
+(opener/closer/dateline) pas encore traitée — fallback lisible en attendant.
+
+**Reste à faire** : module correspondance ; affichage des images locales ;
+notes marginales flottantes ; cascade de réglages (corpus/fichier) ;
+rechargement à chaud dans l'UI ; snapshots de non-régression ; test de
+performance sur un gros fichier.
+
+**Portable vers Firefox** : le contrat HTML (classes `tei-*`, `data-tei-*`,
+distinction natif/fallback), les profils JSON, toutes les CSS, le corpus
+d'échantillons et les assertions des tests.
+
+**Spécifique au prototype Python** : la XSLT et SaxonC (moteur remplaçable
+derrière `TransformEngine`), l'analyse lxml, la CLI, pywebview.
+
+## Limites techniques connues
+
+- SaxonC s'exécute dans le processus principal (appel direct) ;
+  l'isolation en sous-processus viendra si les crashs natifs ou le
   packaging le justifient — l'interface `TransformEngine` est prévue pour.
 - Le packaging en exécutable (PyInstaller/Nuitka) n'est pas couvert :
   saxonche embarque une bibliothèque native qui demande des hooks manuels.

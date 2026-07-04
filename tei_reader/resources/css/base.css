@@ -1,4 +1,4 @@
-/* base.css — thème de lecture par défaut (étape 0).
+/* base.css — thème de lecture par défaut.
    Les sélecteurs suivent le contrat HTML : docs/contrat-html.md. */
 
 html {
@@ -34,13 +34,39 @@ h1.tei-head, h2.tei-head, h3.tei-head, h4.tei-head, h5.tei-head, h6.tei-head {
 .tei-quote::before, .tei-q::before { content: "« "; }
 .tei-quote::after, .tei-q::after { content: " »"; }
 
-/* Notes : rendu inline discret (étape 0) */
-.tei-note {
+/* Notes — mode inline */
+span.tei-note {
   font-size: 0.85em;
   color: #555;
 }
-.tei-note::before { content: " ["; }
-.tei-note::after { content: "] "; }
+span.tei-note::before { content: " ["; }
+span.tei-note::after { content: "] "; }
+
+/* Notes — mode fin de document */
+.tei-note-ref {
+  text-decoration: none;
+  color: #7a1f1f;
+}
+.tei-note-ref sup { font-size: 0.7em; }
+.tei-notes {
+  margin-top: 3em;
+  border-top: 1px solid #ccc;
+  padding-top: 1em;
+}
+.tei-notes-head { font-size: 1.1em; }
+.tei-notes-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.9em;
+  color: #333;
+}
+.tei-notes-list li.tei-note { margin: 0.4em 0; }
+.tei-note-marker { font-weight: bold; }
+.tei-note-backlink {
+  text-decoration: none;
+  color: #999;
+  font-size: 0.85em;
+}
 
 /* Sauts de page */
 .tei-pb {
@@ -54,13 +80,20 @@ h1.tei-head, h2.tei-head, h3.tei-head, h4.tei-head, h5.tei-head, h6.tei-head {
 .tei-pb::before { content: "— p. " attr(data-tei-n) " —"; }
 .tei-pb:not([data-tei-n])::before { content: "— [pb] —"; }
 
-/* Vers */
+/* Vers (rendu de base ; verse.css affine) */
 .tei-lg { margin: 1em 0 1em 2em; }
 .tei-l { display: block; }
 
-/* Apparat critique : lecture courante = leçon retenue seule */
-.tei-lem { }
+/* Apparat critique : lecture courante.
+   Décision éditoriale : le texte des variantes est toujours présent
+   dans le HTML ; base.css n'affiche que la leçon retenue (lem) ou,
+   à défaut de lem, le premier rdg (tei-rdg-default). */
 .tei-rdg { display: none; }
+.tei-rdg-default { display: inline; }
+
+/* Témoins */
+.tei-listWit { margin: 1em 0; font-size: 0.9em; }
+.tei-witness { margin: 0.2em 0 0.2em 1.5em; }
 
 /* Fac-similés : simple marqueur */
 .tei-graphic { color: #777; font-size: 0.85em; }

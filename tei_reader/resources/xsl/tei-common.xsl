@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  tei-common.xsl : feuille de transformation minimale TEI -> HTML5 (étape 0).
-  Contrat HTML documenté dans docs/contrat-html.md.
+  tei-common.xsl : transformation TEI -> HTML5 (étape 1).
+  Contrat HTML documenté dans docs/contrat-html.md — c'est la référence.
   La liste des éléments traités ici doit rester synchronisée avec
-  HANDLED_ELEMENTS dans tei_reader/core/document.py.
+  HANDLED_ELEMENTS dans tei_reader/core/document.py ; cette synchronisation
+  est vérifiée automatiquement par tests/test_contract_sync.py.
 -->
 <xsl:stylesheet version="3.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -14,6 +15,7 @@
 
   <xsl:param name="css-hrefs" select="'base.css'"/>
   <xsl:param name="show-pb" select="'true'"/>
+  <xsl:param name="note-mode" select="'inline'"/> <!-- 'inline' | 'end' -->
   <xsl:param name="doc-title-fallback" select="'Document TEI'"/>
 
   <!-- ======================= Document ======================= -->
@@ -22,7 +24,7 @@
     <html>
       <head>
         <meta charset="utf-8"/>
-<!-- 'self' est inopérant sous file:// (origine opaque) : on autorise
+        <!-- 'self' est inopérant sous file:// (origine opaque) : on autorise
              explicitement le schéma file: pour styles et images ; les scripts
              restent interdits par default-src 'none'. -->
         <meta http-equiv="Content-Security-Policy"
@@ -47,13 +49,26 @@
   </xsl:template>
 
   <!-- Le teiHeader n'est pas rendu (titre extrait ci-dessus).
-       facsimile/standOff : hors rendu à l'étape 0, signalés par les diagnostics Python. -->
+       facsimile/standOff : hors rendu à ce stade, signalés par les
+       diagnostics Python. -->
   <xsl:template match="tei:teiHeader | tei:facsimile | tei:standOff"/>
 
   <!-- ================== Attributs partagés =================== -->
   <!-- class = tei-<nom> [+ classes] [+ rend-<valeur>...]
        @xml:id -> id ; @xml:lang -> lang ;
-       attributs savants -> data-tei-<nom>. -->
+       attributs savants -> data-tei-<nom> (liste : voir contrat HTML). -->
+
+  <xsl:variable name="data-attributes"
+      select="('type','subtype','n','place','ana','ref','corresp','facs',
+               'rend','wit','target','url','who','met','part')"/>
+
+  <xsl:template name="data-atts">
+    <xsl:for-each select="@*[local-name() = $data-attributes
+                             and namespace-uri() = '']">
+      <xsl:attribute name="data-tei-{local-name()}" select="."/>
+    </xsl:for-each>
+  </xsl:template>
+
   <xsl:template name="tei-atts">
     <xsl:param name="classes" select="()"/>
     <xsl:attribute name="class"
@@ -67,10 +82,7 @@
     <xsl:if test="@xml:lang">
       <xsl:attribute name="lang" select="@xml:lang"/>
     </xsl:if>
-    <xsl:for-each select="@type | @subtype | @n | @place | @ana | @ref
-                          | @corresp | @facs | @rend | @wit | @target | @url">
-      <xsl:attribute name="data-tei-{local-name()}" select="."/>
-    </xsl:for-each>
+    <xsl:call-template name="data-atts"/>
   </xsl:template>
 
   <!-- ===================== Structure ========================= -->
@@ -79,6 +91,9 @@
     <main>
       <xsl:call-template name="tei-atts"/>
       <xsl:apply-templates/>
+      <xsl:if test="$note-mode = 'end' and .//tei:note">
+        <xsl:call-template name="endnotes"/>
+      </xsl:if>
     </main>
   </xsl:template>
 
@@ -128,12 +143,57 @@
   </xsl:template>
 
   <!-- ===================== Notes ============================= -->
+  <!-- Deux modes (paramètre note-mode) :
+       - inline : la note est rendue sur place dans un span ;
+       - end    : appel de note numéroté, notes regroupées en fin de
+                  document dans <section class="tei-notes">.
+       Le numéro affiché est @n si présent, sinon le rang de la note
+       dans le <text>. -->
 
   <xsl:template match="tei:note">
-    <span>
-      <xsl:call-template name="tei-atts"/>
-      <xsl:apply-templates/>
-    </span>
+    <xsl:choose>
+      <xsl:when test="$note-mode = 'end'">
+        <a class="tei-note-ref" href="#note-{generate-id()}"
+           id="noteref-{generate-id()}">
+          <sup>
+            <xsl:call-template name="note-marker"/>
+          </sup>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <span>
+          <xsl:call-template name="tei-atts"/>
+          <xsl:apply-templates/>
+        </span>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="note-marker">
+    <xsl:value-of
+        select="if (@n) then string(@n)
+                else string(count(preceding::tei:note[ancestor::tei:text]) + 1)"/>
+  </xsl:template>
+
+  <xsl:template name="endnotes">
+    <section class="tei-notes">
+      <h2 class="tei-notes-head">Notes</h2>
+      <ol class="tei-notes-list">
+        <xsl:for-each select=".//tei:note">
+          <li class="tei-note" id="note-{generate-id()}">
+            <xsl:call-template name="data-atts"/>
+            <span class="tei-note-marker">
+              <xsl:call-template name="note-marker"/>
+              <xsl:text>.</xsl:text>
+            </span>
+            <xsl:text> </xsl:text>
+            <xsl:apply-templates/>
+            <xsl:text> </xsl:text>
+            <a class="tei-note-backlink" href="#noteref-{generate-id()}">&#8617;</a>
+          </li>
+        </xsl:for-each>
+      </ol>
+    </section>
   </xsl:template>
 
   <!-- ================= Sauts de page / ligne ================= -->
@@ -150,7 +210,9 @@
     </xsl:if>
   </xsl:template>
 
-  <!-- ====================== Vers ============================= -->
+  <!-- ====================== Poésie ============================ -->
+  <!-- lg : bloc strophique (@type conservé) ; l : vers (@n, @met,
+       @part conservés ; numérotation et indentations en CSS). -->
 
   <xsl:template match="tei:lg">
     <div>
@@ -166,9 +228,60 @@
     </span>
   </xsl:template>
 
-  <!-- ========== Apparat critique : rendu linéaire minimal ===== -->
-  <!-- Décision étape 0 : app/lem/rdg reconnus, rendu simple lisible ;
-       la visibilité des rdg est pilotée par CSS (profil diagnostic). -->
+  <!-- ====================== Théâtre =========================== -->
+  <!-- Actes et scènes : ce sont des tei:div ordinaires ; leur @type
+       (act, scene) est conservé en data-tei-type et ciblé par drama.css. -->
+
+  <xsl:template match="tei:sp">
+    <div>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="tei:speaker">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="tei:stage">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="tei:castList">
+    <div>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="tei:castItem">
+    <div>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="tei:role | tei:roleDesc">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <!-- ============ Apparat critique : rendu minimal ============ -->
+  <!-- Décision éditoriale (documentée dans le contrat HTML) :
+       - le texte des variantes n'est JAMAIS perdu : lem et rdg sont
+         toujours émis dans le HTML ; leur visibilité est pilotée par CSS ;
+       - en lecture courante (base.css), seuls lem et tei-rdg-default
+         sont visibles ;
+       - si un app n'a pas de lem, le premier rdg reçoit la classe
+         tei-rdg-default afin que le texte reste lisible. -->
 
   <xsl:template match="tei:app">
     <span>
@@ -177,14 +290,41 @@
     </span>
   </xsl:template>
 
-  <xsl:template match="tei:lem | tei:rdg">
+  <xsl:template match="tei:lem">
     <span>
       <xsl:call-template name="tei-atts"/>
       <xsl:apply-templates/>
     </span>
   </xsl:template>
 
-  <!-- ========== Fac-similés : simple marqueur (étape 0) ======= -->
+  <xsl:template match="tei:rdg">
+    <span>
+      <xsl:call-template name="tei-atts">
+        <xsl:with-param name="classes"
+            select="if (empty(../tei:lem) and empty(preceding-sibling::tei:rdg))
+                    then 'tei-rdg-default' else ()"/>
+      </xsl:call-template>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <!-- ================ Témoins (listWit/witness) =============== -->
+
+  <xsl:template match="tei:listWit">
+    <div>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="tei:witness">
+    <div>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+
+  <!-- ========== Fac-similés : simple marqueur (étape 1) ======= -->
 
   <xsl:template match="tei:graphic">
     <span>
@@ -207,10 +347,7 @@
                                  return concat('rend-', $r)), ' ')"/>
       <xsl:if test="@xml:id"><xsl:attribute name="id" select="@xml:id"/></xsl:if>
       <xsl:if test="@xml:lang"><xsl:attribute name="lang" select="@xml:lang"/></xsl:if>
-      <xsl:for-each select="@type | @subtype | @n | @place | @ana | @ref
-                            | @corresp | @facs | @rend | @wit | @target | @url">
-        <xsl:attribute name="data-tei-{local-name()}" select="."/>
-      </xsl:for-each>
+      <xsl:call-template name="data-atts"/>
       <xsl:apply-templates/>
     </span>
   </xsl:template>

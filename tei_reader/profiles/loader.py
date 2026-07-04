@@ -15,7 +15,12 @@ PROFILES_DIR = RESOURCES_DIR / "profiles"
 
 
 class ProfileError(Exception):
-    """Profil introuvable ou invalide."""
+    """Profil introuvable ou invalide. `code` alimente les diagnostics :
+    profile-unknown, profile-invalid, missing-xslt, missing-css."""
+
+    def __init__(self, message: str, code: str = "profile-error") -> None:
+        super().__init__(message)
+        self.code = code
 
 
 @dataclass(frozen=True)
@@ -35,22 +40,31 @@ def load_profile(name: str) -> Profile:
     path = PROFILES_DIR / f"{name}.json"
     if not path.is_file():
         raise ProfileError(
-            f"Profil inconnu : {name!r}. Disponibles : {', '.join(list_profiles())}"
+            f"Profil inconnu : {name!r}. Disponibles : {', '.join(list_profiles())}",
+            code="profile-unknown",
         )
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as exc:
-        raise ProfileError(f"Profil {name!r} illisible : {exc}") from exc
+        raise ProfileError(
+            f"Profil {name!r} illisible : {exc}", code="profile-invalid"
+        ) from exc
 
     xslt = RESOURCES_DIR / "xsl" / data["xslt"]
     if not xslt.is_file():
-        raise ProfileError(f"XSLT introuvable pour le profil {name!r} : {xslt}")
+        raise ProfileError(
+            f"XSLT introuvable pour le profil {name!r} : {xslt}",
+            code="missing-xslt",
+        )
 
     css_paths = []
     for css_name in data.get("css", []):
         css = RESOURCES_DIR / "css" / css_name
         if not css.is_file():
-            raise ProfileError(f"CSS introuvable pour le profil {name!r} : {css}")
+            raise ProfileError(
+                f"CSS introuvable pour le profil {name!r} : {css}",
+                code="missing-css",
+            )
         css_paths.append(css)
 
     return Profile(
