@@ -1,0 +1,48 @@
+/* correspondence.css — mise en page des lettres (profil correspondence).
+   S'appuie exclusivement sur le contrat HTML (classes tei-*) ; aucune
+   dépendance à l'implémentation XSLT. */
+
+/* En-tête et formule finale : blocs détachés du corps de la lettre. */
+.tei-opener {
+  margin: 0 0 1.5em 0;
+}
+
+.tei-closer {
+  margin: 1.5em 0 0 0;
+}
+
+/* Date et lieu : alignés à droite, en italique. */
+.tei-dateline {
+  display: block;
+  text-align: right;
+  font-style: italic;
+  margin-bottom: 0.75em;
+}
+
+/* Salutation : bloc distinct (« Monsieur, », « Ma bonne, »...). */
+.tei-salute {
+  display: block;
+  margin: 0.75em 0;
+}
+
+/* Dans le closer, la salutation finale reste alignée à gauche,
+   la signature part à droite en petites capitales. */
+.tei-signed {
+  display: block;
+  text-align: right;
+  font-variant: small-caps;
+  margin-top: 0.5em;
+}
+
+/* Adresse (suscription) : bloc encadré discret, une ligne par addrLine. */
+.tei-address {
+  margin: 1.5em auto 0 auto;
+  padding: 0.5em 1em;
+  border: 1px solid #ccc;
+  max-width: 60%;
+  font-size: 0.95em;
+}
+
+.tei-addrLine {
+  display: block;
+}

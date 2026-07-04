@@ -1,0 +1,18 @@
+<!DOCTYPE HTML><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' file:; img-src 'self' file:"><title>Images locales — échantillon</title><link rel="stylesheet" href="base.css"></head><body><main class="tei-text">
+<div class="tei-body">
+<section class="tei-div" data-tei-type="chapter">
+<h2 class="tei-head">Des images dans le texte</h2>
+<p class="tei-p">Voici une vignette locale, qui existe bel et bien sur le
+disque :</p>
+<span class="tei-graphic" data-tei-url="images/vignette.svg"><img class="tei-graphic-img" src="file:LOCAL" alt="images/vignette.svg"></span>
+<a href="file:LOCAL" class="tei-pb tei-pb-facs" data-tei-n="2" data-tei-facs="images/vignette.svg"></a>
+<p class="tei-p">Le saut de page ci-dessus renvoie au fac-similé local. Celui
+ci-dessous pointe vers une surface interne (référence « #surf1 »,
+jamais comptée comme média manquant) :</p>
+<span class="tei-pb" data-tei-n="3" data-tei-facs="#surf1"></span>
+<p class="tei-p">Enfin, une image annoncée mais absente du disque doit rester un
+simple marqueur, signalé en diagnostic :</p>
+<span class="tei-graphic" data-tei-url="images/absente.png">[image : images/absente.png]</span>
+</section>
+</div>
+</main></body></html>

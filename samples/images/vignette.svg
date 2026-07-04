@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vignette de test, créée pour ce projet (domaine public / CC0). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120"
+     viewBox="0 0 240 120">
+  <rect width="240" height="120" fill="#fdfcf8" stroke="#7a1f1f"
+        stroke-width="3"/>
+  <text x="120" y="55" text-anchor="middle" font-family="Georgia, serif"
+        font-size="20" fill="#7a1f1f">Vignette TEI</text>
+  <text x="120" y="85" text-anchor="middle" font-family="Georgia, serif"
+        font-size="12" fill="#555">fac-similé de test</text>
+</svg>

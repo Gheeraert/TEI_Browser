@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Lettre à Monsieur de Pomponne — échantillon de correspondance</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Échantillon pour le lecteur TEI (domaine public).</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>D'après Mme de Sévigné, lettre du 1er décembre 1664 (extrait adapté).</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <div type="letter">
+        <opener>
+          <dateline>À Paris, ce <date when="1664-12-01">1er décembre 1664</date>.</dateline>
+          <salute>Monsieur,</salute>
+        </opener>
+        <p>Il faut que je vous conte ce qui s'est passé aujourd'hui ; c'est
+          une chose digne de votre curiosité<note place="foot">L'affaire
+          Fouquet occupe alors tout Paris.</note>, et je ne saurais la taire
+          sans vous faire tort.</p>
+        <p>On interrogea ce matin M. Fouquet sur le registre des pensions ;
+          il répondit avec beaucoup d'esprit et de présence. Chacun en parle
+          selon sa passion ; pour moi, je ne juge de rien, et j'attends.</p>
+        <closer>
+          <salute>Je suis, Monsieur, votre très humble et très obéissante
+            servante,</salute>
+          <signed>la marquise de Sévigné</signed>
+          <dateline>De ma chambre, fort tard.</dateline>
+        </closer>
+        <postscript>
+          <p>On dit que l'arrêt sera rendu avant Noël.</p>
+        </postscript>
+      </div>
+      <div type="address-leaf">
+        <address>
+          <addrLine>À Monsieur</addrLine>
+          <addrLine>Monsieur de Pomponne,</addrLine>
+          <addrLine>en son château de Pomponne.</addrLine>
+        </address>
+      </div>
+    </body>
+  </text>
+</TEI>

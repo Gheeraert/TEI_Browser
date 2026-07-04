@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Images locales — échantillon</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Échantillon pour le lecteur TEI.</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Texte de démonstration : une image locale existante, une image
+          absente, un saut de page lié à un fac-similé local.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <facsimile>
+    <surface xml:id="surf1">
+      <graphic url="images/vignette.svg"/>
+    </surface>
+  </facsimile>
+  <text>
+    <body>
+      <div type="chapter">
+        <head>Des images dans le texte</head>
+        <p>Voici une vignette locale, qui existe bel et bien sur le
+          disque :</p>
+        <graphic url="images/vignette.svg"/>
+        <pb n="2" facs="images/vignette.svg"/>
+        <p>Le saut de page ci-dessus renvoie au fac-similé local. Celui
+          ci-dessous pointe vers une surface interne (référence « #surf1 »,
+          jamais comptée comme média manquant) :</p>
+        <pb n="3" facs="#surf1"/>
+        <p>Enfin, une image annoncée mais absente du disque doit rester un
+          simple marqueur, signalé en diagnostic :</p>
+        <graphic url="images/absente.png"/>
+      </div>
+    </body>
+  </text>
+</TEI>

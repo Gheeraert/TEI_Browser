@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Fichier de stress : mélange volontaire de tous les genres et de cas
+     limites (références cassées, image absente, éléments inconnus).
+     Sert au test de robustesse : le rendu ne doit jamais planter. -->
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Document de stress — tous genres mêlés</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Échantillon pour le lecteur TEI.</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Texte de démonstration composite.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <div type="letter">
+        <opener>
+          <dateline>À Rouen, ce 12 mai 1668.</dateline>
+          <salute>Madame,</salute>
+        </opener>
+        <p>Vous trouverez ci-joint les pièces que vous m'avez demandées ;
+          j'y joins un fragment de tragédie et quelques vers.</p>
+        <closer>
+          <signed>Votre serviteur, T. G.</signed>
+        </closer>
+      </div>
+    </front>
+    <body>
+      <div type="chapter" xml:id="chap1">
+        <head>Prose, notes et apparat</head>
+        <p>L'homme n'est qu'un
+          <app>
+            <lem wit="#W1">roseau pensant</lem>
+            <rdg wit="#W2">roseau qui pense</rdg>
+          </app>, le plus faible de la nature<note place="foot">Pensées,
+          éd. de référence.</note>.</p>
+        <p>Un apparat sans leçon retenue :
+          <app>
+            <rdg wit="#W1">la coutume</rdg>
+            <rdg wit="#W2">l'habitude</rdg>
+          </app> fait toute l'équité.</p>
+        <pb n="12"/>
+        <p>Renvoi interne valide vers <ref target="#chap1">ce chapitre</ref>
+          et renvoi cassé vers <ref target="#nulle-part">un fantôme</ref>.
+          Témoin inconnu : <seg ana="#concept-absent">segment analysé</seg>.</p>
+        <listWit>
+          <witness xml:id="W1">Manuscrit de Rouen</witness>
+          <witness xml:id="W2">Copie de Paris</witness>
+        </listWit>
+      </div>
+      <div type="poem">
+        <head>Quatrain</head>
+        <lg type="quatrain" met="12">
+          <l n="1">Le jour n'est pas plus pur que le fond de mon cœur,</l>
+          <l n="2">Et la nuit vient pourtant y répandre ses ombres ;</l>
+          <l n="3">Je marche environné de mes pensées sombres,</l>
+          <l n="4">Cherchant dans le silence un reste de bonheur.</l>
+        </lg>
+      </div>
+      <div type="act" n="I">
+        <head>Fragment de théâtre</head>
+        <div type="scene" n="1">
+          <stage>Une place publique.</stage>
+          <sp who="#personnage-fantome">
+            <speaker>Arlequin</speaker>
+            <p>Me voici, me voilà ! <stage>Il saute.</stage></p>
+          </sp>
+        </div>
+      </div>
+      <div type="images">
+        <head>Images</head>
+        <graphic url="images/vignette.svg"/>
+        <graphic url="images/introuvable.png"/>
+        <pb n="13" facs="images/vignette.svg"/>
+      </div>
+      <div type="divers">
+        <head>Éléments inconnus</head>
+        <p>Un mot en <blorb>langage inconnu</blorb> et une
+          <persName ref="#qui-donc">personne nommée</persName> restent
+          lisibles.</p>
+        <table>
+          <row><cell>Une cellule</cell><cell>Une autre</cell></row>
+        </table>
+      </div>
+    </body>
+  </text>
+</TEI>

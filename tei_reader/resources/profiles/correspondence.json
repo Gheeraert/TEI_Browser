@@ -1,0 +1,10 @@
+{
+  "name": "correspondence",
+  "description": "Correspondance : en-tête de lettre lisible, date et lieu distincts, salutation, signature, adresse. Notes en fin de document.",
+  "xslt": "tei-common.xsl",
+  "params": {
+    "show-pb": "true",
+    "note-mode": "end"
+  },
+  "css": ["base.css", "correspondence.css"]
+}
