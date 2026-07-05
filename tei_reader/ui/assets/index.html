@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TEI Reader</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="toolbar">
+    <button id="open-file" type="button">Ouvrir un fichier TEI</button>
+    <div id="current-file" class="current-file">Aucun fichier sélectionné</div>
+    <label class="profile-control">
+      <span>Profil</span>
+      <select id="profile"></select>
+    </label>
+    <button id="render" type="button">Rendre</button>
+    <button id="inspect" type="button">Inspecter</button>
+    <button id="open-external" type="button">Ouvrir HTML externe</button>
+    <button id="reload" type="button">Recharger</button>
+  </header>
+
+  <main class="layout">
+    <aside class="side-panel">
+      <nav class="tabs" aria-label="Panneau d'information">
+        <button class="tab active" data-tab="diagnostics" type="button">Diagnostics</button>
+        <button class="tab" data-tab="summary" type="button">Résumé</button>
+        <button class="tab" data-tab="info" type="button">Infos</button>
+      </nav>
+      <section id="diagnostics-panel" class="panel active"></section>
+      <section id="summary-panel" class="panel"></section>
+      <section id="info-panel" class="panel"></section>
+    </aside>
+
+    <section class="reader-panel">
+      <iframe id="preview" title="Aperçu HTML TEI"></iframe>
+      <div id="empty-preview" class="empty-preview">Aucun rendu HTML chargé.</div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

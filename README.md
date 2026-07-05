@@ -52,6 +52,9 @@ sous Windows 11) ; `dev` installe pytest.
 # Transformer et afficher dans une fenêtre webview
 .\.venv\Scripts\tei-reader view samples\drama.xml --profile drama
 
+# Ouvrir l'interface desktop de consultation
+.\.venv\Scripts\tei-reader gui
+
 # Analyser un fichier sans produire de HTML (résumé + diagnostics)
 .\.venv\Scripts\tei-reader inspect samples\drama.xml
 

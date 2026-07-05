@@ -26,7 +26,7 @@ tei-reader = "tei_reader.cli:main"
 include = ["tei_reader*"]
 
 [tool.setuptools.package-data]
-tei_reader = ["resources/**/*"]
+tei_reader = ["resources/**/*", "ui/assets/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

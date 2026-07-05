@@ -5,6 +5,7 @@ Usage :
     tei-reader view fichier.xml [--profile prose] [--out out]
     tei-reader inspect fichier.xml
     tei-reader profiles
+    tei-reader gui
 """
 
 from __future__ import annotations
@@ -38,6 +39,8 @@ def main(argv: list[str] | None = None) -> int:
     p_view = sub.add_parser("view", help="Transformer puis afficher dans une webview")
     _add_common(p_view)
 
+    sub.add_parser("gui", help="Ouvrir l'interface desktop de consultation")
+
     p_inspect = sub.add_parser(
         "inspect",
         help="Analyser un fichier TEI (résumé + diagnostics) sans produire de HTML",
@@ -52,6 +55,11 @@ def main(argv: list[str] | None = None) -> int:
         for name in list_profiles():
             prof = load_profile(name)
             print(f"{name:<12} {prof.description}")
+        return 0
+
+    if args.command == "gui":
+        from tei_reader.ui.app import show_app
+        show_app()
         return 0
 
     if args.command == "inspect":
