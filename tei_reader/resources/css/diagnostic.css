@@ -15,6 +15,29 @@
 
 span.tei-note { background: #eef3f8; }
 
+.tei-date::after,
+.tei-name::after,
+.tei-persName::after,
+.tei-placeName::after,
+.tei-orgName::after,
+.tei-title::after,
+.tei-term::after,
+.tei-ref::after,
+.tei-ptr::after {
+  color: #6b86b8;
+  font-size: 0.7em;
+  vertical-align: super;
+}
+.tei-date::after { content: " ⟨date⟩"; }
+.tei-name::after { content: " ⟨name⟩"; }
+.tei-persName::after { content: " ⟨persName⟩"; }
+.tei-placeName::after { content: " ⟨placeName⟩"; }
+.tei-orgName::after { content: " ⟨orgName⟩"; }
+.tei-title::after { content: " ⟨title⟩"; }
+.tei-term::after { content: " ⟨term⟩"; }
+.tei-ref::after { content: " ⟨ref⟩"; }
+.tei-ptr::after { content: " ⟨ptr⟩"; }
+
 .tei-choice {
   background: #f4f8ff;
   outline: 1px dotted #6b86b8;

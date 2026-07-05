@@ -24,7 +24,8 @@ Liste des éléments traités, côté Python : `HANDLED_ELEMENTS` dans
    préfixe `tei` évite toute collision avec des `data-*` d'outillage :
    `type`, `subtype`, `n`, `place`, `ana`, `ref`, `corresp`, `facs`,
    `rend`, `wit`, `target`, `url`, `who`, `met`, `part`, `cert`, `resp`,
-   `hand`, `reason`, `extent`, `unit`, `seq`, `instant`, `status`.
+   `hand`, `reason`, `extent`, `unit`, `seq`, `instant`, `status`, `key`,
+   `when`, `from`, `to`, `notBefore`, `notAfter`.
 5. Le `teiHeader` n'est pas rendu dans le corps ; le premier
    `titleStmt/title` devient le `<title>` du document HTML.
 6. Le document produit est du HTML5 autonome, sans JavaScript, avec une
@@ -59,6 +60,28 @@ Liste des éléments traités, côté Python : `HANDLED_ELEMENTS` dans
 | `quote`, `q` | `<span class="tei-quote/q">` | guillemets ajoutés en CSS |
 | `lb` | `<br class="tei-lb">` | |
 | `pb` | `<span class="tei-pb" data-tei-n data-tei-facs>` — ou `<a class="tei-pb tei-pb-facs" href="…">` si `@facs` désigne un fichier local existant | vide ; marqueur « — p. n — » en CSS ; masquable par le paramètre `show-pb` ; le lien pointe vers le fac-similé local (URI `file:`) |
+
+### Éléments savants communs
+
+| TEI | HTML | Notes |
+|---|---|---|
+| `date` | `<span class="tei-date" data-tei-when>` | date lisible, attributs conservés |
+| `name` | `<span class="tei-name" data-tei-ref data-tei-key>` | nom générique |
+| `persName` | `<span class="tei-persName" data-tei-ref data-tei-key>` | nom de personne |
+| `placeName` | `<span class="tei-placeName" data-tei-ref data-tei-key>` | nom de lieu |
+| `orgName` | `<span class="tei-orgName" data-tei-ref data-tei-key>` | nom d'organisation |
+| `title` | `<span class="tei-title" data-tei-type>` | titre d'œuvre ou de document cité |
+| `term` | `<span class="tei-term" data-tei-type data-tei-key>` | terme critique ou indexé |
+| `ref` | `<a class="tei-ref" href="…" data-tei-target>` ou `<span class="tei-ref" data-tei-target>` | lien seulement pour `@target="#id"` ou `@target="http(s)://…"` |
+| `ptr` | `<a class="tei-ptr" href="…" data-tei-target>[référence : …]</a>` ou `<span class="tei-ptr" data-tei-target>[référence : …]</span>` | élément vide rendu par un marqueur lisible |
+
+**Décision de sécurité/portabilité (étape 4)** : `ref` et `ptr` ne
+chargent jamais automatiquement une ressource. Une cible locale `#id`
+devient un lien interne. Une URL distante explicite `http://` ou
+`https://` peut devenir un lien HTML avec `rel="noopener noreferrer"` :
+elle n'est chargée que si l'utilisateur l'active. Toute autre cible reste
+un rendu textuel prudent (`span` ou marqueur), avec `data-tei-target`
+conservé.
 
 ### Notes (paramètre `note-mode`)
 

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://gricad-gitlab.univ-grenoble-alpes.fr/elan/schemas-tei/-/raw/main/corrproust/out/odd_corrproust.rng?ref_type=heads" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://gricad-gitlab.univ-grenoble-alpes.fr/elan/schemas-tei/-/raw/main/corrproust/out/odd_corrproust.rng?ref_type=heads" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<!DOCTYPE html [
+   <!ENTITY nbsp "&#160;">
+]>
+
+
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <title>01984_IX_59</title>
+            <respStmt>
+               <resp when="20220215">transcription</resp>
+               <name>Mathieu Tanné</name>
+            </respStmt>
+            <respStmt>
+               <resp when="20220215">relecture transcription</resp>
+               <name>Marie Moreau</name>
+            </respStmt>
+            <respStmt>
+               <resp when="20230711">balisage</resp>
+               <name>Victor Meuche</name>
+            </respStmt>
+            <respStmt>
+               <resp when="20231004">relecture, annotation</resp>
+               <name>Julie André</name>
+            </respStmt>
+            <respStmt>
+               <resp when="20240826">relecture, annotation</resp>
+               <name>Julie André</name>
+            </respStmt>
+         </titleStmt>
+         <publicationStmt>
+            <p>https://proust.elan-numerique.fr</p>
+         </publicationStmt>
+         <notesStmt>
+            <relatedItem>
+               <listBibl>
+                  <bibl corresp="#Lettres">
+                     <biblScope unit="num_letter">267</biblScope>
+                     <biblScope unit="page">482</biblScope>
+                  </bibl>
+                  <bibl corresp="#Kolb">
+                     <biblScope unit="num_letter">59</biblScope>
+                     <biblScope unit="page">116</biblScope>
+                     <biblScope unit="tome">IX</biblScope>
+                  </bibl>
+
+                  <bibl type="livre">
+                     <title level="main">A un ami</title>
+                     <title level="sub">Correspondance inédite, 1903-1922</title>
+                     <author>Proust, Marcel</author>
+                     <publisher>Amiot-Dumont</publisher>
+                     <pubPlace>Paris</pubPlace>
+                     <date when="1948">1948</date>
+                     <biblScope unit="page">176</biblScope>
+                  </bibl>
+               </listBibl>
+            </relatedItem>
+         </notesStmt>
+         <sourceDesc>
+            <msDesc>
+               <msIdentifier>
+                  <institution/>
+                  <repository>pas d'information</repository>
+                  <collection type="particulière"/>
+                  <idno/>
+               </msIdentifier>
+               <physDesc>
+                  <objectDesc source="publication_antérieure">
+                     <supportDesc>
+                        <support>
+                           <objectType/>
+                           <material/>
+                        </support>
+                        <extent>
+                           <dimensions>
+                              <height unit="mm">00</height>
+                              <width unit="mm">00</width>
+                           </dimensions>
+                           <measure unit="feuillet">0</measure>
+                           <measure unit="pages">0</measure>
+                           <measure unit="pages_écrites">0</measure>
+                        </extent>
+                     </supportDesc>
+                  </objectDesc>
+                  <handDesc>
+                     <handNote/>
+                  </handDesc>
+               </physDesc>
+            </msDesc>
+         </sourceDesc>
+      </fileDesc>
+      <profileDesc>
+         <correspDesc xml:id="cp01984">
+            <correspAction type="write">
+               <persName ref="#proust1">
+                  <surname>Proust</surname>
+                  <forename>Marcel</forename>
+               </persName>
+               <date when="19090623" evidence="déduit" change="non">[peu avant le 23 juin
+                  1909]</date>
+               <address>
+                  <addrLine>102 boulevard Haussmann</addrLine>
+
+               </address>
+            </correspAction>
+            <correspAction type="received">
+               <persName ref="#lauris1">
+                  <surname>Lauris, de</surname>
+                  <forename>Georges</forename>
+                  <addName>Georges de Lauris</addName>
+               </persName>
+            </correspAction>
+         </correspDesc>
+         <textClass>
+            <keywords>
+               <term>amitié</term>
+               <term>genèse</term>
+               <term>épistolarité</term>
+            </keywords>
+         </textClass>
+      </profileDesc>
+   </teiHeader>
+   <text>
+      <body>
+         <div type="letter">
+            <pb facs="pas_image.jpg"/>
+            <opener place="right">
+               <dateline><note n="1" resp="#PK">Lettre qui a dû être écrite [peu avant le 23 juin
+                     1909] : voir la note 2 ci-après.</note></dateline>
+            </opener>
+            <opener>
+               <salute>Mon petit <persName ref="#lauris1">Georges</persName>,</salute>
+            </opener>
+            <p>Ne croyez pas que j’oublie <persName ref="#nogret1">votre protégé</persName>. Deux
+               fois depuis l’expiration du délai j’ai fait demander rendez-vous à <persName
+                  ref="#plante2">mon industriel</persName><note n="2" resp="#PK #JA">Il s’agit de
+                  Camille Plantevignes, fabricant de cravates. Il est le père de Marcel Plantevignes
+                  que Proust a rencontré à Cabourg en 1908. Voir la lettre de Proust à Lauris datée
+                  de [peu après le 23 mai 1909] (<ref target="#cp01978" type="renvoi">CP 01978</ref>
+                  ; <hi rend="italic">Kolb</hi>, IX, n°53) dans laquelle Proust demande « quel délai
+                  vous m’accordez » pour la démarche qu’il se propose de faire en faveur de
+                  Nogrette, le protégé du destinataire. Voir aussi la lettre à Lauris datée
+                  du [23 juin 1909] (<ref type="renvoi" target="#cp01985">CP 01985</ref>, <hi
+                     rend="italic">Kolb</hi>, IX, n°60).</note>, il n’était libre aucune des deux
+               fois, il est vrai que c’était le matin même pour le soir. Peut-être aujourd’hui même
+               pourrais-je renouveler ma tentative. En y réfléchissant l’allemand serait utile car
+               je me rappelle que <persName ref="#plante1">le fils</persName> qui doit succéder à
+               son père a passé plusieurs années en Allemagne chez un professeur. Chez <persName
+                  ref="#fould0">les Fould</persName> au contraire c’est l’espagnol. Vous auriez dû
+               demander non à <persName ref="#fould6">Eugène</persName>
+               <note n="4" resp="#PK #JA">Eugène Fould, fils de Léon Fould, dirigeant d'une affaire
+                  d'import-export. Sur Eugène Fould, voir la lettre de Proust qui lui est adressée
+                  datée du [19 mars? 1905] (<ref type="renvoi" target="#cp01223">CP 01223</ref> ;
+                     <hi rend="italic">Kolb</hi>, V, n°40, note 2).</note> mais à <persName
+                  ref="#fould2">son père</persName>.</p>
+            <p>Georges je suis si épuisé d’avoir commencé <title type="prose_fiction">Sainte-Beuve<note><bibl><author>Marcel Proust</author><title level="main">[Contre Sainte-Beuve]</title></bibl></note></title><note n="5" resp="#JA"
+                  type="génétique">Il s’agit du livre auquel Proust donne le titre provisoire de « Contre Sainte-Beuve, Souvenir d’une matinée » et qu'il évoque quelques semaines plus tard sur un feuillet
+                  retrouvé d'une lettre à Reynaldo Hahn datée du [17 ou le 18 juillet 1909] (<ref type="renvoi" target="#cp01999">CP
+                     01999</ref> ; <hi rend="italic">Kolb</hi>, n°74), lorsqu'il commence à chercher un éditeur. Voir à ce
+                  propos la lettre à Alfred Vallette datée d'[un peu avant la mi-août 1909] (<ref
+                     target="#cp02003" type="renvoi">CP 02003</ref> ; <hi rend="italic">Kolb</hi>,
+                  IX, n°78).</note> (<hi rend="italic">je suis en plein travail</hi>, détestable du
+               reste) que je ne sais ce que je vous écris. A la lettre je ne peux pas écrire. Je
+               vous récrirai ce soir si je suis plus calme au sujet de l’impossible automne ou du
+               moins, difficile.</p>
+            <closer>
+               <salute>Tendrement à vous.</salute>
+               <signed>Marcel.</signed>
+            </closer>
+         </div>
+      </body>
+   </text>
+</TEI>

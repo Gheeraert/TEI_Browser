@@ -67,10 +67,9 @@ def test_unknown_element_does_not_crash(unknown_result):
     # élément inventé : rendu fallback, texte lisible, nom conservé
     assert 'data-tei="blorb"' in html
     assert "texte dans un élément" in html
-    # élément TEI réel non traité : même mécanisme
-    assert 'data-tei="persName"' in html
+    # élément TEI réel désormais traité : texte lisible, attribut conservé
+    assert 'class="tei-persName"' in html
     assert "Blaise Pascal" in html
-    # les attributs savants survivent au fallback
     assert 'data-tei-ref="#pascal"' in html
 
 
@@ -91,7 +90,7 @@ def test_diagnostics_produced(unknown_result):
         d for d in data["diagnostics"] if d["code"] == "unknown-elements"
     )
     assert "blorb" in unknown["details"]["elements"]
-    assert "persName" in unknown["details"]["elements"]
+    assert "persName" not in unknown["details"]["elements"]
 
 
 def test_malformed_fails_cleanly(tmp_path):

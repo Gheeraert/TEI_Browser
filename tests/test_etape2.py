@@ -63,9 +63,10 @@ def test_correspondence_elements_not_unknown(letter):
 
 def test_correspondence_attributes_kept(letter):
     html = letter.html_path.read_text(encoding="utf-8")
-    # la date TEI (élément non traité) garde son contenu et le div son type
+    # la date TEI et le div conservent leurs attributs savants.
     assert 'data-tei-type="letter"' in html
-    assert 'data-tei="date"' in html
+    assert 'class="tei-date"' in html
+    assert 'data-tei-when="1664-12-01"' in html
 
 
 # ------------------------- Images locales -------------------------
@@ -208,7 +209,7 @@ def test_stress_fallback_readable(stress):
     html = stress.html_path.read_text(encoding="utf-8")
     assert 'data-tei="blorb"' in html
     assert "langage inconnu" in html
-    assert 'data-tei="persName"' in html
+    assert 'class="tei-persName"' in html
     assert 'data-tei="table"' in html
     assert "Une cellule" in html
 

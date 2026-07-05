@@ -72,7 +72,8 @@
       select="('type','subtype','n','place','ana','ref','corresp','facs',
                'rend','wit','target','url','who','met','part',
                'cert','resp','hand','reason','extent','unit','seq',
-               'instant','status')"/>
+               'instant','status','key','when','from','to',
+               'notBefore','notAfter')"/>
 
   <xsl:template name="data-atts">
     <xsl:for-each select="@*[local-name() = $data-attributes
@@ -152,6 +153,66 @@
       <xsl:call-template name="tei-atts"/>
       <xsl:apply-templates/>
     </em>
+  </xsl:template>
+
+  <!-- ================ Éléments savants communs ================ -->
+  <!-- Noms, dates, titres et termes : inline sobres, attributs conservés.
+       ref/ptr : lien seulement pour une cible sûre (#id local ou http(s)).
+       Les autres cibles restent lisibles sans navigation. -->
+
+  <xsl:template match="tei:date | tei:name | tei:persName | tei:placeName
+                       | tei:orgName | tei:title | tei:term">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="tei:ref">
+    <xsl:variable name="target" select="normalize-space(@target)"/>
+    <xsl:choose>
+      <xsl:when test="starts-with($target, '#')
+                      or matches($target, '^https?://')">
+        <a href="{$target}">
+          <xsl:if test="matches($target, '^https?://')">
+            <xsl:attribute name="rel" select="'noopener noreferrer'"/>
+          </xsl:if>
+          <xsl:call-template name="tei-atts"/>
+          <xsl:apply-templates/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <span>
+          <xsl:call-template name="tei-atts"/>
+          <xsl:apply-templates/>
+        </span>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="tei:ptr">
+    <xsl:variable name="target" select="normalize-space(@target)"/>
+    <xsl:variable name="label"
+        select="if ($target != '') then concat('[référence : ', $target, ']')
+                else '[référence]'"/>
+    <xsl:choose>
+      <xsl:when test="starts-with($target, '#')
+                      or matches($target, '^https?://')">
+        <a href="{$target}">
+          <xsl:if test="matches($target, '^https?://')">
+            <xsl:attribute name="rel" select="'noopener noreferrer'"/>
+          </xsl:if>
+          <xsl:call-template name="tei-atts"/>
+          <xsl:value-of select="$label"/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <span>
+          <xsl:call-template name="tei-atts"/>
+          <xsl:value-of select="$label"/>
+        </span>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- =========== Transcription et normalisation éditoriale ===== -->
