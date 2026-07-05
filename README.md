@@ -54,6 +54,7 @@ sous Windows 11) ; `dev` installe pytest.
 
 # Ouvrir l'interface desktop de consultation
 .\.venv\Scripts\tei-reader gui
+.\.venv\Scripts\python -m tei_reader gui
 
 # Analyser un fichier sans produire de HTML (résumé + diagnostics)
 .\.venv\Scripts\tei-reader inspect samples\drama.xml
@@ -101,15 +102,18 @@ tei_reader/
 │   └── saxon_engine.py     # implémentation saxonche (seul import de saxonche)
 ├── diagnostics/models.py   # Diagnostic, RenderResult
 ├── profiles/loader.py      # chargement des profils JSON
-├── ui/webview_app.py       # fenêtre pywebview minimale
+├── ui/
+│   ├── app.py              # interface desktop pywebview
+│   ├── webview_app.py      # affichage simple d'un HTML rendu
+│   └── assets/             # HTML/CSS/JS de l'interface desktop
 └── resources/
     ├── xsl/tei-common.xsl  # transformation TEI → HTML5 (contrat HTML)
     ├── css/                # base, verse, drama, correspondence, apparatus, diagnostic
     └── profiles/           # prose, verse, drama, correspondence, diagnostic (JSON)
 samples/                    # échantillons ciblés (un par fonctionnalité + stress-mixed)
-fixtures/                   # TEI réels (Corneille, Balzac, sonnet, manuscrit, grec)
+fixtures/                   # TEI réels et variés pour audit empirique
 tests/                      # pytest (dont snapshots/ : HTML de non-régression)
-docs/                       # architecture, contrat HTML
+docs/                       # architecture, contrat HTML, audit des fallbacks
 ```
 
 ## Tests
@@ -138,31 +142,29 @@ relire le diff git :
 1. Ouvrir le dossier du projet ; PyCharm détecte `.venv` (sinon :
    Settings → Project → Python Interpreter → Existing → `.venv\Scripts\python.exe`).
 2. Run/Debug Configuration → module `tei_reader`, paramètres :
-   `render samples\prose.xml --open` (ou `view samples\prose.xml`).
+   `render samples\prose.xml --open`, `view samples\prose.xml` ou `gui`.
 3. Les tests se lancent par clic droit sur `tests/` → Run pytest.
 
-## État de l'étape 2
+## État actuel du prototype
 
-**Ce qui est stable** : le contrat HTML et sa synchronisation XSLT/Python
-testée ; prose, poésie, théâtre, notes (2 modes), apparat minimal sans
-perte de texte ; correspondance (opener, closer, dateline, salute, signed,
-address) ; images locales réellement affichées (`graphic` → `<img>`,
-`pb/@facs` → lien, jamais de ressource distante) ; diagnostics (résumé,
-références cassées, médias manquants) ; `inspect` avec suggestion de
-profil par règles documentées ; snapshots HTML de non-régression ;
-fichier de stress rendu sans crash sous les cinq profils.
+**Ce qui est stable** : le contrat HTML central et sa synchronisation
+XSLT/Python testée ; le parsing sécurisé par lxml ; la transformation
+SaxonC ; les profils `prose`, `verse`, `drama`, `correspondence` et
+`diagnostic` ; les notes inline ou en fin de document ; l'apparat minimal
+sans perte de variantes ; la correspondance ; les images locales relatives
+sécurisées ; les éléments de transcription (`add`, `del`, `subst`,
+`choice`, etc.) ; les éléments savants communs (`date`, `name`,
+`persName`, `placeName`, `orgName`, `title`, `term`, `ref`, `ptr`) ; la
+tokenisation et les structures fréquentes (`w`, `c`, `pc`, `seg`, `ab`,
+`milestone`, `fw`, `div1`, `div2`) ; l'audit des fixtures ; les snapshots
+HTML ; la CLI ; l'interface desktop pywebview expérimentale.
 
-**Ce qui reste expérimental** : la mise en page de la correspondance
-(`postscript`, `date` en fallback) ; les images en URI `file:` absolue
-(HTML non déplaçable sans ses sources) ; l'heuristique de profil (seuils
-arbitraires) ; l'apparat linéaire ; les TEI réels de `fixtures/`, dont
-les éléments de transcription (`add`, `del`, `subst`…) passent en
-fallback lisible.
-
-**Reste à faire** : notes marginales flottantes ; éléments de
-transcription courants ; mode « copie des médias » ; cascade de réglages
-(corpus/fichier) ; rechargement à chaud dans l'UI ; test de performance
-sur un gros fichier.
+**Ce qui reste expérimental ou à faire** : les notes marginales
+flottantes ; un vrai mode « copie des médias » pour produire un dossier
+HTML transportable ; les réglages fins par corpus ou fichier ; une
+interface d'apparat critique ; la gestion savante de `sound`, `interp`,
+`interpGrp`, `event`, `relation`, `desc` ; la performance sur très gros
+fichiers ; le packaging exécutable ; la portabilité future vers Firefox.
 
 **Portable vers Firefox** : le contrat HTML (classes `tei-*`, `data-tei-*`,
 distinction natif/fallback), les profils JSON, toutes les CSS, le corpus

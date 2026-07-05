@@ -8,14 +8,14 @@ projet. Le contrat de rendu HTML est décrit dans [contrat-html.md](contrat-html
 
 ```
               ┌─────────────────────────────────────────────┐
- interfaces   │  cli.py          ui/webview_app.py   (plus  │
- (aucune      │  (render/view/    (fenêtre WebView2) tard : │
-  logique)    │   profiles)                          Flask) │
+ interfaces   │  cli.py          ui/app.py                  │
+ (couches     │  (render/view/    (desktop pywebview)       │
+  minces)     │   inspect/profiles/gui)                     │
               └───────────────────┬─────────────────────────┘
                                   │  appelle uniquement
               ┌───────────────────▼─────────────────────────┐
- façade       │  core/service.py : render(fichier, profil,  │
-              │  dossier de sortie) -> RenderResult          │
+ façade       │  core/service.py : render(), inspect_file()  │
+              │  profiles/loader.py : profils JSON           │
               └───┬──────────────┬──────────────┬───────────┘
                   │              │              │
         ┌─────────▼───┐  ┌───────▼──────┐  ┌────▼──────────┐
@@ -107,14 +107,18 @@ directement portables vers un futur lecteur navigateur.
 ### Médias locaux : l'existence est vérifiée par Python, pas par la XSLT
 
 Une XSLT ne sait pas tester l'existence d'un fichier. Pour afficher les
-images locales (étape 2), `core/document.py` vérifie sur disque les
-chemins de `graphic/@url` et `pb/@facs` (relatifs au fichier source) et
-`core/service.py` transmet à la XSLT deux paramètres calculés :
+images locales, `core/document.py` vérifie sur disque les chemins de
+`graphic/@url` et `pb/@facs`. Seuls les chemins relatifs locaux, sans
+schéma, relatifs au dossier du fichier TEI source, sont résolus. Les URL,
+les chemins absolus POSIX ou Windows, les chemins UNC, les URL
+protocol-relative et les remontées par `..` sont rejetés. `core/service.py`
+transmet ensuite à la XSLT deux paramètres calculés :
 `existing-media` (les valeurs trouvées, séparées par des sauts de ligne)
 et `media-base` (le dossier source en URI `file:`, car le HTML est écrit
 ailleurs). La XSLT rend alors une vraie `<img>` (ou un lien pour `pb`),
-sinon le marqueur textuel. Les références `#id`, URL distantes et `data:`
-sont ignorées : **aucune ressource distante n'est jamais chargée**.
+sinon le marqueur textuel. Les références `#id` et les ressources distantes
+sont ignorées pour les médias : **aucune ressource distante n'est jamais
+chargée**.
 
 ### Snapshots HTML normalisés
 
@@ -152,6 +156,19 @@ appliquée automatiquement.
 - Sorties dans un dossier explicite choisi par l'utilisateur (`--out`),
   pas de fichiers temporaires anonymes : rendu reproductible et inspectable.
 
+## Interface desktop expérimentale
+
+L'interface lancée par `tei-reader gui` ou `python -m tei_reader gui` est
+une couche mince au-dessus de la couche métier. Elle appelle `render()`,
+`inspect_file()`, `list_profiles()` et `load_profile()`, puis affiche le
+HTML produit, les diagnostics et le résumé d'inspection.
+
+Elle ne parse pas elle-même le XML, ne touche pas directement à Saxon, ne
+connaît pas les détails de la XSLT et ne duplique pas les diagnostics. Cette
+frontière est volontaire : les prochains enrichissements TEI doivent faire
+évoluer la couche métier et le contrat HTML, tandis que l'interface reste un
+lecteur de résultats.
+
 ## Horizon navigateur (rappel des décisions)
 
 Le capital portable vers une future extension Firefox est, par ordre
@@ -170,34 +187,27 @@ navigateur : prétransformation hors navigateur, moteur JS libre s'il en
 existe un satisfaisant, ou rendu direct type Custom Elements (CETEIcean)
 réimplémentant le contrat HTML.
 
-## État de l'étape 1
+## État actuel du prototype
 
-L'étape 1 a étendu le rendu (poésie, théâtre, notes à deux modes,
-apparat minimal, témoins), enrichi les diagnostics (résumé, références,
-médias), ajouté la commande `inspect` et le test de synchronisation
-XSLT/Python. Choix notable : **une seule XSLT commune** (`tei-common.xsl`)
-pour tous les genres à ce stade — les profils ne diffèrent que par
-paramètres et CSS. Le mécanisme de surcharge par genre (une feuille
-`drama.xsl` qui importerait `tei-common.xsl`) reste prévu par le format
-de profil (champ `xslt`) mais n'est pas encore nécessaire : aucune
-différence *structurelle* de rendu ne l'exige encore.
+Le prototype couvre déjà le rendu prose, poésie, théâtre, correspondance,
+notes à deux modes, apparat minimal, témoins, images locales relatives,
+éléments de transcription, éléments savants communs, tokenisation et
+structures fréquentes. Il dispose aussi de diagnostics, d'un résumé
+`inspect`, d'un audit empirique des fixtures, de snapshots HTML et d'une
+interface desktop pywebview minimale.
 
-Décisions éditoriales de l'étape 1 (détail dans le contrat HTML) :
-le texte des variantes n'est jamais perdu (visibilité par CSS) ; un
-`app` sans `lem` affiche son premier `rdg` (`tei-rdg-default`) ; la
-numérotation des vers est purement CSS ; les notes finales conservent
-tous leurs attributs pour permettre les modes futurs.
+Choix notable : **une seule XSLT commune** (`tei-common.xsl`) pour tous les
+genres à ce stade. Les profils diffèrent par paramètres et CSS. Le
+mécanisme de surcharge par genre (une feuille `drama.xsl` qui importerait
+`tei-common.xsl`) reste prévu par le format de profil (champ `xslt`) mais
+n'est pas encore nécessaire : aucune différence *structurelle* de rendu ne
+l'exige encore.
 
-## État de l'étape 2
-
-L'étape 2 est une passe de robustesse : correspondance (`opener`,
-`closer`, `dateline`, `salute`, `signed`, `address`, `addrLine` +
-profil `correspondence`), affichage réel des images locales
-(`graphic` → `<img>`, `pb/@facs` → lien), snapshots HTML de
-non-régression, fichier de stress mêlant tous les genres, `inspect`
-enrichi (références cassées, médias manquants, suggestion de profil),
-et un corpus de TEI réels dans `fixtures/` (Corneille, Balzac, sonnet,
-manuscrit Whitman, texte grec) utilisé par les tests de l'heuristique.
+Décisions éditoriales maintenues dans le contrat HTML : le texte des
+variantes n'est jamais perdu (visibilité par CSS) ; un `app` sans `lem`
+affiche son premier `rdg` (`tei-rdg-default`) ; la numérotation des vers est
+purement CSS ; les notes finales conservent tous leurs attributs pour
+permettre les modes futurs.
 
 ### Ce qui est stable
 
@@ -211,16 +221,15 @@ manuscrit Whitman, texte grec) utilisé par les tests de l'heuristique.
 
 ### Ce qui reste expérimental
 
-- le rendu de la correspondance (mise en page minimale ; `postscript`,
-  `date`, `placeName` encore en fallback) ;
-- les images locales : `src` en URI `file:` absolue vers le dossier
-  source — le HTML n'est donc pas déplaçable sans ses sources (un mode
-  « copie des médias » reste à décider) ;
+- l'interface desktop pywebview, utile mais encore volontairement minimale ;
+- les images locales : `src` en URI `file:` absolue vers le dossier source
+  — le HTML n'est donc pas déplaçable sans ses sources (un mode « copie
+  des médias » reste à décider) ;
 - l'heuristique de suggestion de profil (règles volontairement
   grossières, seuil de 10 vers arbitraire) ;
 - l'apparat critique (rendu linéaire, pas d'interface) ;
-- le rendu des TEI réels de `fixtures/` : beaucoup d'éléments de
-  transcription génétique (`add`, `del`, `subst`…) passent en fallback.
+- les éléments TEI savants non encore priorisés, par exemple `sound`,
+  `interp`, `interpGrp`, `event`, `relation` et `desc`.
 
 ## Comment ajouter un profil
 
@@ -247,12 +256,11 @@ manuscrit Whitman, texte grec) utilisé par les tests de l'heuristique.
 ## Étapes suivantes envisagées
 
 - notes marginales flottantes (mode `margin`) ;
-- éléments de transcription courants des TEI réels (`add`, `del`,
-  `choice`, `unclear`…) ;
 - mode « copie des médias » à côté du HTML (sorties déplaçables) ;
 - cascade de réglages (défauts globaux → profil → corpus → fichier) ;
 - vraie interface d'apparat critique ;
-- rechargement à chaud des profils dans l'UI ;
+- réglages fins par corpus ou fichier dans l'interface ;
 - isolation sous-processus du moteur si nécessaire ;
-- test de performance sur un gros fichier (le Balzac de `fixtures/`
-  est un bon candidat).
+- test de performance sur de très gros fichiers ;
+- packaging exécutable ;
+- portabilité future vers Firefox.
