@@ -22,6 +22,26 @@ h1.tei-head, h2.tei-head, h3.tei-head, h4.tei-head, h5.tei-head, h6.tei-head {
   line-height: 1.25;
 }
 .tei-p { margin: 0 0 0.8em; text-align: justify; }
+.tei-ab { margin: 0 0 0.8em; }
+
+/* Corpus, tokenisation et jalons */
+.tei-w,
+.tei-c,
+.tei-pc,
+.tei-seg {
+  font: inherit;
+}
+.tei-fw {
+  color: #777;
+  font-size: 0.85em;
+}
+.tei-milestone {
+  color: #aaa;
+  font-size: 0.75em;
+}
+.tei-milestone::before {
+  content: "·";
+}
 
 /* Mise en relief : pilotée par les classes rend-* */
 .rend-italic, .rend-i, .rend-it { font-style: italic; }

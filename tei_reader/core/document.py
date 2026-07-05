@@ -28,6 +28,8 @@ HANDLED_ELEMENTS = frozenset({
     "div", "head", "p",
     # inline
     "hi", "emph", "foreign", "quote", "q",
+    # corpus, tokenisation et jalons
+    "w", "c", "pc", "seg", "ab", "milestone", "fw", "div1", "div2",
     # éléments savants communs
     "date", "name", "persName", "placeName", "orgName", "title", "term",
     "ref", "ptr",

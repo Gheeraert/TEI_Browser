@@ -25,7 +25,8 @@ Liste des éléments traités, côté Python : `HANDLED_ELEMENTS` dans
    `type`, `subtype`, `n`, `place`, `ana`, `ref`, `corresp`, `facs`,
    `rend`, `wit`, `target`, `url`, `who`, `met`, `part`, `cert`, `resp`,
    `hand`, `reason`, `extent`, `unit`, `seq`, `instant`, `status`, `key`,
-   `when`, `from`, `to`, `notBefore`, `notAfter`.
+   `when`, `from`, `to`, `notBefore`, `notAfter`, `lemma`, `pos`, `msd`,
+   `norm`, `join`.
 5. Le `teiHeader` n'est pas rendu dans le corps ; le premier
    `titleStmt/title` devient le `<title>` du document HTML.
 6. Le document produit est du HTML5 autonome, sans JavaScript, avec une
@@ -47,8 +48,28 @@ Liste des éléments traités, côté Python : `HANDLED_ELEMENTS` dans
 | `text` | `<main class="tei-text">` | accueille les notes finales en mode `end` |
 | `front`, `body`, `back` | `<div class="tei-front/body/back">` | |
 | `div` | `<section class="tei-div">` | `@type` → `data-tei-type` (`act`, `scene`, `poem`… ciblés par les CSS de genre) |
-| `head` | `<h2>`…`<h6>` `class="tei-head"` | niveau = profondeur des `div` ancêtres + 1, plafonné à 6 |
+| `div1`, `div2` | `<section class="tei-div tei-div1/div2">` | anciennes divisions TEI, compatibles avec les CSS de `div` |
+| `head` | `<h2>`…`<h6>` `class="tei-head"` | niveau = profondeur des `div`/`div1`/`div2` ancêtres + 1, plafonné à 6 |
 | `p` | `<p class="tei-p">` | |
+
+### Corpus, tokenisation et jalons
+
+| TEI | HTML | Notes |
+|---|---|---|
+| `w` | `<span class="tei-w" data-tei-lemma data-tei-pos data-tei-msd data-tei-norm data-tei-join>` | mot tokenisé ; rendu neutre en lecture courante |
+| `c` | `<span class="tei-c" data-tei-join data-tei-norm>` | caractère tokenisé ; aucun espace ajouté |
+| `pc` | `<span class="tei-pc" data-tei-type data-tei-join>` | ponctuation tokenisée ; aucun espace ajouté |
+| `seg` | `<span class="tei-seg" data-tei-type data-tei-subtype data-tei-ana data-tei-n data-tei-corresp>` | segment inline neutre |
+| `ab` | `<div class="tei-ab">` | bloc anonyme, distinct de `p` |
+| `milestone` | `<span class="tei-milestone" data-tei-unit data-tei-n data-tei-type data-tei-subtype data-tei-ana>` | jalon vide ; marqueur discret en lecture courante, détaillé en diagnostic |
+| `fw` | `<span class="tei-fw" data-tei-type data-tei-place data-tei-n>` | titre courant, réclame, signature ou autre forme imprimée ; texte conservé |
+
+**Décision (étape 5)** : `w`, `c` et `pc` peuvent apparaître des dizaines
+de milliers de fois. En lecture courante, ils ne reçoivent donc ni bordure
+ni étiquette visible, et la transformation n'insère aucun espace
+artificiel. Le profil `diagnostic` ajoute seulement de petites étiquettes
+CSS. `milestone` n'est pas un saut de page : `pb` reste l'élément dédié aux
+sauts de page.
 
 ### Inline
 
@@ -196,8 +217,7 @@ conserve les alternatives et leurs attributs dès maintenant.
 
 Toute la mise en page (alignements, italiques, encadré de l'adresse)
 est dans `correspondence.css` ; le HTML ne porte que la structure.
-`postscript` et les éléments fins (`date`, `placeName`…) restent en
-fallback lisible à ce stade.
+`postscript` reste en fallback lisible à ce stade.
 
 ### Fac-similés et images locales
 

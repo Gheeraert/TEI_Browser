@@ -10,8 +10,8 @@ Il mesure les éléments TEI encore rendus par le fallback, sans modifier le ren
 - Fichiers lisibles : 8
 - Éléments TEI distincts : 179
 - Occurrences TEI : 88540
-- Éléments non traités distincts : 31
-- Occurrences non traitées : 77466
+- Éléments non traités distincts : 22
+- Occurrences non traitées : 71
 
 ## Éléments TEI rencontrés
 
@@ -201,18 +201,9 @@ Il mesure les éléments TEI encore rendus par le fallback, sans modifier le ren
 
 | Élément | Occurrences |
 |---|---:|
-| `w` | 35416 |
-| `c` | 29979 |
-| `pc` | 6258 |
-| `milestone` | 4669 |
-| `ab` | 808 |
-| `div2` | 166 |
-| `fw` | 74 |
-| `seg` | 18 |
 | `sound` | 15 |
 | `desc` | 14 |
 | `interp` | 11 |
-| `div1` | 7 |
 | `bibl` | 4 |
 | `interpGrp` | 3 |
 | `author` | 2 |
@@ -251,13 +242,13 @@ Il mesure les éléments TEI encore rendus par le fallback, sans modifier le ren
 | Fichier | Occurrences | Éléments |
 |---|---:|---|
 | `fixtures/correspondence/lettre proust.xml` | 2 | `bibl` × 1, `author` × 1 |
-| `fixtures/drama/corneillep-cid.xml` | 17 | `ab` × 3, `event` × 2, `desc` × 2, `titlePart` × 2, `listRelation` × 1, `relation` × 1, `listEvent` × 1, `docTitle` × 1, `docDate` × 1, `docAuthor` × 1, `docImprint` × 1, `performance` × 1 |
+| `fixtures/drama/corneillep-cid.xml` | 14 | `event` × 2, `desc` × 2, `titlePart` × 2, `listRelation` × 1, `relation` × 1, `listEvent` × 1, `docTitle` × 1, `docDate` × 1, `docAuthor` × 1, `docImprint` × 1, `performance` × 1 |
 | `fixtures/greek/tlg0284.tlg048.perseus-grc2.xml` | 0 | — |
-| `fixtures/manuscript/uva.00058.xml` | 8 | `milestone` × 2, `delSpan` × 2, `anchor` × 2, `seg` × 1, `alt` × 1 |
+| `fixtures/manuscript/uva.00058.xml` | 5 | `delSpan` × 2, `anchor` × 2, `alt` × 1 |
 | `fixtures/novel/FRA00502_Balzac.xml` | 0 | — |
 | `fixtures/poetry/Cervantes_de_Salazar,_Francisco_o_Juan__379g~~Soneto__0849.xml` | 0 | — |
-| `fixtures/poetry/Son.xml` | 38405 | `w` × 17747, `c` × 15561, `pc` × 2584, `milestone` × 2183, `ab` × 157, `div2` × 156, `desc` × 6, `bibl` × 3, `seg` × 2, `div1` × 2, `citedRange` × 2, `author` × 1, `pubPlace` × 1 |
-| `fixtures/poetry/Tmp.xml` | 39034 | `w` × 17669, `c` × 14418, `pc` × 3674, `milestone` × 2484, `ab` × 648, `fw` × 74, `seg` × 15, `sound` × 15, `interp` × 11, `div2` × 10, `desc` × 6, `div1` × 5, `interpGrp` × 3, `label` × 2 |
+| `fixtures/poetry/Son.xml` | 13 | `desc` × 6, `bibl` × 3, `citedRange` × 2, `author` × 1, `pubPlace` × 1 |
+| `fixtures/poetry/Tmp.xml` | 37 | `sound` × 15, `interp` × 11, `desc` × 6, `interpGrp` × 3, `label` × 2 |
 
 ## Diagnostics importants
 
@@ -274,18 +265,9 @@ Il mesure les éléments TEI encore rendus par le fallback, sans modifier le ren
 
 ## Candidats fréquents à traiter
 
-- `w` : 35416 occurrence(s), 2 fichier(s)
-- `c` : 29979 occurrence(s), 2 fichier(s)
-- `pc` : 6258 occurrence(s), 2 fichier(s)
-- `milestone` : 4669 occurrence(s), 3 fichier(s)
-- `ab` : 808 occurrence(s), 3 fichier(s)
-- `div2` : 166 occurrence(s), 2 fichier(s)
-- `fw` : 74 occurrence(s), 1 fichier(s)
-- `seg` : 18 occurrence(s), 3 fichier(s)
 - `sound` : 15 occurrence(s), 1 fichier(s)
 - `desc` : 14 occurrence(s), 3 fichier(s)
 - `interp` : 11 occurrence(s), 1 fichier(s)
-- `div1` : 7 occurrence(s), 2 fichier(s)
 - `bibl` : 4 occurrence(s), 2 fichier(s)
 - `interpGrp` : 3 occurrence(s), 1 fichier(s)
 - `author` : 2 occurrence(s), 2 fichier(s)
@@ -299,3 +281,9 @@ Il mesure les éléments TEI encore rendus par le fallback, sans modifier le ren
 - `relation` : 1 occurrence(s), 1 fichier(s)
 - `listEvent` : 1 occurrence(s), 1 fichier(s)
 - `docTitle` : 1 occurrence(s), 1 fichier(s)
+- `docDate` : 1 occurrence(s), 1 fichier(s)
+- `docAuthor` : 1 occurrence(s), 1 fichier(s)
+- `docImprint` : 1 occurrence(s), 1 fichier(s)
+- `performance` : 1 occurrence(s), 1 fichier(s)
+- `alt` : 1 occurrence(s), 1 fichier(s)
+- `pubPlace` : 1 occurrence(s), 1 fichier(s)

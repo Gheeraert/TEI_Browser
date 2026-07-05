@@ -73,7 +73,8 @@
                'rend','wit','target','url','who','met','part',
                'cert','resp','hand','reason','extent','unit','seq',
                'instant','status','key','when','from','to',
-               'notBefore','notAfter')"/>
+               'notBefore','notAfter','lemma','pos','msd','norm',
+               'join')"/>
 
   <xsl:template name="data-atts">
     <xsl:for-each select="@*[local-name() = $data-attributes
@@ -124,8 +125,20 @@
     </section>
   </xsl:template>
 
+  <xsl:template match="tei:div1 | tei:div2">
+    <section>
+      <xsl:call-template name="tei-atts">
+        <xsl:with-param name="classes" select="'tei-div'"/>
+      </xsl:call-template>
+      <xsl:apply-templates/>
+    </section>
+  </xsl:template>
+
   <xsl:template match="tei:head">
-    <xsl:variable name="level" select="min((count(ancestor::tei:div) + 1, 6))"/>
+    <xsl:variable name="level"
+        select="min((count(ancestor::*[self::tei:div
+                                       or self::tei:div1
+                                       or self::tei:div2]) + 1, 6))"/>
     <xsl:element name="h{$level}">
       <xsl:call-template name="tei-atts"/>
       <xsl:apply-templates/>
@@ -139,12 +152,32 @@
     </p>
   </xsl:template>
 
+  <xsl:template match="tei:ab">
+    <div>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+
   <!-- ================ Mise en relief, inline ================= -->
 
   <xsl:template match="tei:hi | tei:foreign | tei:quote | tei:q">
     <span>
       <xsl:call-template name="tei-atts"/>
       <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="tei:w | tei:c | tei:pc | tei:seg | tei:fw">
+    <span>
+      <xsl:call-template name="tei-atts"/>
+      <xsl:apply-templates/>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="tei:milestone">
+    <span>
+      <xsl:call-template name="tei-atts"/>
     </span>
   </xsl:template>
 

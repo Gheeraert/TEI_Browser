@@ -38,6 +38,31 @@ span.tei-note { background: #eef3f8; }
 .tei-ref::after { content: " ⟨ref⟩"; }
 .tei-ptr::after { content: " ⟨ptr⟩"; }
 
+.tei-w::after,
+.tei-c::after,
+.tei-pc::after,
+.tei-seg::after,
+.tei-ab::after,
+.tei-fw::after,
+.tei-div1::before,
+.tei-div2::before,
+.tei-milestone::after {
+  color: #6b86b8;
+  font-size: 0.7em;
+  vertical-align: super;
+}
+.tei-w::after { content: "⟨w⟩"; }
+.tei-c::after { content: "⟨c⟩"; }
+.tei-pc::after { content: "⟨pc⟩"; }
+.tei-seg::after { content: " ⟨seg⟩"; }
+.tei-ab::after { content: " ⟨ab⟩"; }
+.tei-fw::after { content: " ⟨fw⟩"; }
+.tei-div1::before { content: "⟨div1⟩ "; }
+.tei-div2::before { content: "⟨div2⟩ "; }
+.tei-milestone::after {
+  content: "⟨milestone " attr(data-tei-unit) " " attr(data-tei-n) " " attr(data-tei-type) "⟩";
+}
+
 .tei-choice {
   background: #f4f8ff;
   outline: 1px dotted #6b86b8;
