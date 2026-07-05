@@ -7,4 +7,6 @@ build/
 out/
 .pytest_cache/
 .pytest-tmp/
+.pytest-*/
+tests/_runtime/
 .idea/

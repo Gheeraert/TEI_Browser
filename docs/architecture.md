@@ -8,9 +8,9 @@ projet. Le contrat de rendu HTML est décrit dans [contrat-html.md](contrat-html
 
 ```
               ┌─────────────────────────────────────────────┐
- interfaces   │  cli.py          ui/app.py                  │
- (couches     │  (render/view/    (desktop pywebview)       │
-  minces)     │   inspect/profiles/gui)                     │
+ interfaces   │  cli.py          ui/pyside_app.py           │
+ (couches     │  (render/view/    (desktop PySide6)         │
+  minces)     │   inspect/profiles/gui/webview)             │
               └───────────────────┬─────────────────────────┘
                                   │  appelle uniquement
               ┌───────────────────▼─────────────────────────┐
@@ -158,16 +158,24 @@ appliquée automatiquement.
 
 ## Interface desktop expérimentale
 
-L'interface lancée par `tei-reader gui` ou `python -m tei_reader gui` est
-une couche mince au-dessus de la couche métier. Elle appelle `render()`,
-`inspect_file()`, `list_profiles()` et `load_profile()`, puis affiche le
-HTML produit, les diagnostics et le résumé d'inspection.
+L'interface principale lancée par `tei-reader gui` ou
+`python -m tei_reader gui` est une application PySide6 (`ui/pyside_app.py`).
+L'ancienne interface pywebview reste disponible par `tei-reader webview` et
+le visualiseur simple `tei-reader view` continue d'ouvrir un HTML rendu dans
+une webview.
 
-Elle ne parse pas elle-même le XML, ne touche pas directement à Saxon, ne
-connaît pas les détails de la XSLT et ne duplique pas les diagnostics. Cette
-frontière est volontaire : les prochains enrichissements TEI doivent faire
-évoluer la couche métier et le contrat HTML, tandis que l'interface reste un
-lecteur de résultats.
+La couche PySide reste mince : elle appelle `render()`, `inspect_file()`,
+`list_profiles()` et `load_profile()`, puis affiche le HTML produit, les
+diagnostics et le résumé d'inspection. Elle ne parse pas elle-même le XML, ne
+touche pas directement à Saxon, ne connaît pas les détails de la XSLT et ne
+duplique pas les diagnostics. Cette frontière est volontaire : les prochains
+enrichissements TEI doivent faire évoluer la couche métier et le contrat
+HTML, tandis que l'interface reste un lecteur de résultats.
+
+`QWebEngineView` est utilisé pour l'aperçu HTML quand QtWebEngine est
+disponible. Sinon, l'interface doit échouer clairement ou proposer l'ouverture
+du HTML dans le navigateur externe, sans tenter de réinterpréter le contrat
+HTML dans un composant simplifié.
 
 ## Horizon navigateur (rappel des décisions)
 
@@ -194,7 +202,7 @@ notes à deux modes, apparat minimal, témoins, images locales relatives,
 éléments de transcription, éléments savants communs, tokenisation et
 structures fréquentes. Il dispose aussi de diagnostics, d'un résumé
 `inspect`, d'un audit empirique des fixtures, de snapshots HTML et d'une
-interface desktop pywebview minimale.
+interface desktop PySide6 expérimentale.
 
 Choix notable : **une seule XSLT commune** (`tei-common.xsl`) pour tous les
 genres à ce stade. Les profils diffèrent par paramètres et CSS. Le
@@ -221,7 +229,8 @@ permettre les modes futurs.
 
 ### Ce qui reste expérimental
 
-- l'interface desktop pywebview, utile mais encore volontairement minimale ;
+- l'interface desktop PySide6, plus native mais encore expérimentale ;
+- pywebview, conservé comme prototype et fallback historique ;
 - les images locales : `src` en URI `file:` absolue vers le dossier source
   — le HTML n'est donc pas déplaçable sans ses sources (un mode « copie
   des médias » reste à décider) ;
@@ -263,4 +272,5 @@ permettre les modes futurs.
 - isolation sous-processus du moteur si nécessaire ;
 - test de performance sur de très gros fichiers ;
 - packaging exécutable ;
+- installation QtWebEngine et packaging de l'interface PySide6 ;
 - portabilité future vers Firefox.

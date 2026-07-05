@@ -3,7 +3,7 @@
 Lecteur TEI-XML autonome en Python. Chaîne de traitement :
 
 ```
-TEI-XML → lxml (parsing sécurisé + diagnostics) → SaxonC-HE (XSLT 3.0) → HTML statique → webview / navigateur
+TEI-XML → lxml (parsing sécurisé + diagnostics) → SaxonC-HE (XSLT 3.0) → HTML statique → PySide6 / webview / navigateur
 ```
 
 Ce projet est l'**étape 0** d'un lecteur savant de textes TEI (littérature française,
@@ -29,11 +29,13 @@ Prérequis : Windows, Python 3.11–3.13 (3.13 recommandé ; testé avec 3.13).
 ```powershell
 py -3.13 -m venv .venv
 .\.venv\Scripts\python -m pip install --upgrade pip
-.\.venv\Scripts\pip install -e ".[ui,dev]"
+.\.venv\Scripts\pip install -e ".[pyside,ui,dev]"
 ```
 
-Les extras : `ui` installe pywebview (affichage via Edge WebView2, déjà présent
-sous Windows 11) ; `dev` installe pytest.
+Les extras : `pyside` installe PySide6 pour l'interface desktop principale ;
+`ui` installe pywebview pour l'ancienne interface prototype et le visualiseur
+simple ; `dev` installe pytest. QtWebEngine, inclus dans les distributions
+PySide6 usuelles, peut rendre l'installation plus lourde que le cœur métier.
 
 ## Utilisation
 
@@ -52,9 +54,12 @@ sous Windows 11) ; `dev` installe pytest.
 # Transformer et afficher dans une fenêtre webview
 .\.venv\Scripts\tei-reader view samples\drama.xml --profile drama
 
-# Ouvrir l'interface desktop de consultation
+# Ouvrir l'interface desktop principale PySide6
 .\.venv\Scripts\tei-reader gui
 .\.venv\Scripts\python -m tei_reader gui
+
+# Ouvrir l'ancienne interface pywebview conservée comme prototype
+.\.venv\Scripts\tei-reader webview
 
 # Analyser un fichier sans produire de HTML (résumé + diagnostics)
 .\.venv\Scripts\tei-reader inspect samples\drama.xml
@@ -103,7 +108,8 @@ tei_reader/
 ├── diagnostics/models.py   # Diagnostic, RenderResult
 ├── profiles/loader.py      # chargement des profils JSON
 ├── ui/
-│   ├── app.py              # interface desktop pywebview
+│   ├── pyside_app.py       # interface desktop principale PySide6
+│   ├── app.py              # ancienne interface desktop pywebview
 │   ├── webview_app.py      # affichage simple d'un HTML rendu
 │   └── assets/             # HTML/CSS/JS de l'interface desktop
 └── resources/
@@ -142,7 +148,8 @@ relire le diff git :
 1. Ouvrir le dossier du projet ; PyCharm détecte `.venv` (sinon :
    Settings → Project → Python Interpreter → Existing → `.venv\Scripts\python.exe`).
 2. Run/Debug Configuration → module `tei_reader`, paramètres :
-   `render samples\prose.xml --open`, `view samples\prose.xml` ou `gui`.
+   `render samples\prose.xml --open`, `view samples\prose.xml`, `gui` ou
+   `webview`.
 3. Les tests se lancent par clic droit sur `tests/` → Run pytest.
 
 ## État actuel du prototype
@@ -157,7 +164,8 @@ sécurisées ; les éléments de transcription (`add`, `del`, `subst`,
 `persName`, `placeName`, `orgName`, `title`, `term`, `ref`, `ptr`) ; la
 tokenisation et les structures fréquentes (`w`, `c`, `pc`, `seg`, `ab`,
 `milestone`, `fw`, `div1`, `div2`) ; l'audit des fixtures ; les snapshots
-HTML ; la CLI ; l'interface desktop pywebview expérimentale.
+HTML ; la CLI ; l'interface desktop PySide6 expérimentale, avec pywebview
+conservé comme prototype/fallback.
 
 **Ce qui reste expérimental ou à faire** : les notes marginales
 flottantes ; un vrai mode « copie des médias » pour produire un dossier
@@ -171,7 +179,7 @@ distinction natif/fallback), les profils JSON, toutes les CSS, le corpus
 d'échantillons et les assertions des tests.
 
 **Spécifique au prototype Python** : la XSLT et SaxonC (moteur remplaçable
-derrière `TransformEngine`), l'analyse lxml, la CLI, pywebview.
+derrière `TransformEngine`), l'analyse lxml, la CLI, PySide6 et pywebview.
 
 ## Limites techniques connues
 
@@ -179,5 +187,6 @@ derrière `TransformEngine`), l'analyse lxml, la CLI, pywebview.
   l'isolation en sous-processus viendra si les crashs natifs ou le
   packaging le justifient — l'interface `TransformEngine` est prévue pour.
 - Le packaging en exécutable (PyInstaller/Nuitka) n'est pas couvert :
-  saxonche embarque une bibliothèque native qui demande des hooks manuels.
+  saxonche et Qt/PySide6 embarquent des bibliothèques natives qui demandent
+  des hooks manuels.
   Installation par `pip` recommandée.

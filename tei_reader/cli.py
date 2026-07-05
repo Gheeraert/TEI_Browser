@@ -6,6 +6,7 @@ Usage :
     tei-reader inspect fichier.xml
     tei-reader profiles
     tei-reader gui
+    tei-reader webview
 """
 
 from __future__ import annotations
@@ -39,7 +40,8 @@ def main(argv: list[str] | None = None) -> int:
     p_view = sub.add_parser("view", help="Transformer puis afficher dans une webview")
     _add_common(p_view)
 
-    sub.add_parser("gui", help="Ouvrir l'interface desktop de consultation")
+    sub.add_parser("gui", help="Ouvrir l'interface desktop PySide6")
+    sub.add_parser("webview", help="Ouvrir l'ancienne interface pywebview")
 
     p_inspect = sub.add_parser(
         "inspect",
@@ -58,6 +60,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "gui":
+        from tei_reader.ui.pyside_app import show_app
+        try:
+            show_app()
+        except SystemExit as exc:
+            print(exc, file=sys.stderr)
+            return 1
+        return 0
+
+    if args.command == "webview":
         from tei_reader.ui.app import show_app
         show_app()
         return 0
